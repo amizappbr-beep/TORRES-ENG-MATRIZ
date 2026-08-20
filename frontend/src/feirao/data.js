@@ -43,8 +43,8 @@ export const EMPREENDIMENTOS = {
     cover: "/alameda-fachada.jpg",
     galeria: [
       "/alameda-fachada.jpg",
-      "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
-      "https://images.pexels.com/photos/6980724/pexels-photo-6980724.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "/alameda-int-1.jpg",
+      "/alameda-int-2.jpg",
     ],
     beneficios: [
       "Localização na Serra",
