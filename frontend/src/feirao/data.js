@@ -60,10 +60,10 @@ export const EMPREENDIMENTOS = {
     nome: "Residencial Life",
     regiao: "Serra",
     tagline: "Última unidade disponível.",
-    cover:
-      "https://images.unsplash.com/photo-1511452885600-a3d2c9148a31?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    cover: "/life-fachada.jpg",
+    video: "/life.mp4",
     galeria: [
-      "https://images.unsplash.com/photo-1511452885600-a3d2c9148a31?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+      "/life-fachada.jpg",
       "https://images.pexels.com/photos/29012619/pexels-photo-29012619.jpeg?auto=compress&cs=tinysrgb&w=1200",
     ],
     beneficios: ["Última unidade", "Pronta para morar", "Localização na Serra"],

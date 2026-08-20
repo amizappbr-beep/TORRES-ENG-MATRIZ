@@ -126,6 +126,17 @@ export default function EmpreendimentoPage({ slug }) {
 
       {/* GALERIA */}
       <section className="mx-auto max-w-5xl px-4 pb-12">
+        {stat.video && (
+          <video
+            src={stat.video}
+            poster={stat.cover}
+            controls
+            playsInline
+            preload="metadata"
+            data-testid="emp-video"
+            className="mb-3 h-auto w-full rounded-2xl bg-black shadow-sm"
+          />
+        )}
         <div className="grid gap-3 sm:grid-cols-3">
           {stat.galeria.map((g, i) => (
             <img
