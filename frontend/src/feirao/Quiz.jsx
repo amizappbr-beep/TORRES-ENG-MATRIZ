@@ -212,7 +212,7 @@ export default function Quiz() {
     <div className="min-h-screen bg-slate-50">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
-          <TorresLogo />
+          <TorresLogo boxed />
           {phase === "quiz" && (
             <span className="text-xs font-semibold text-slate-500">
               Etapa {baseIndex + 1} de {total}
