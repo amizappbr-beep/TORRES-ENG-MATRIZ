@@ -23,8 +23,8 @@ export const EMPREENDIMENTOS = {
     cover: "/viva-fachada.jpg",
     galeria: [
       "/viva-fachada.jpg",
-      "https://images.pexels.com/photos/7061676/pexels-photo-7061676.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+      "/viva-int-1.jpg",
+      "/viva-int-2.webp",
     ],
     beneficios: [
       "Jacaraípe, com a praia por perto",
