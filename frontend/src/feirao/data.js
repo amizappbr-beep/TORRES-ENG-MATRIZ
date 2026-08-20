@@ -64,7 +64,8 @@ export const EMPREENDIMENTOS = {
     video: "/life.mp4",
     galeria: [
       "/life-fachada.jpg",
-      "https://images.pexels.com/photos/29012619/pexels-photo-29012619.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "/life-int-1.jpg",
+      "/life-int-2.jpg",
     ],
     beneficios: ["Última unidade", "Pronta para morar", "Localização na Serra"],
     descricao:
