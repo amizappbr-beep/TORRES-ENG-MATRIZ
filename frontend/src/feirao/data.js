@@ -20,10 +20,9 @@ export const EMPREENDIMENTOS = {
     nome: "Residencial Viva",
     regiao: "Jacaraípe",
     tagline: "Casas duplex a poucos minutos da praia.",
-    cover:
-      "https://images.unsplash.com/photo-1544143086-828f66ac3945?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    cover: "/viva-fachada.jpg",
     galeria: [
-      "https://images.unsplash.com/photo-1544143086-828f66ac3945?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+      "/viva-fachada.jpg",
       "https://images.pexels.com/photos/7061676/pexels-photo-7061676.jpeg?auto=compress&cs=tinysrgb&w=1200",
       "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
     ],
