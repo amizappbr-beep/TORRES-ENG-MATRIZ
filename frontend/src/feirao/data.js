@@ -75,10 +75,9 @@ export const EMPREENDIMENTOS = {
     nome: "Residencial Aldeia",
     regiao: "Serra",
     tagline: "Última unidade disponível.",
-    cover:
-      "https://images.pexels.com/photos/13771880/pexels-photo-13771880.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    cover: "/aldeia-fachada.jpg",
     galeria: [
-      "https://images.pexels.com/photos/13771880/pexels-photo-13771880.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "/aldeia-fachada.jpg",
       "https://images.unsplash.com/photo-1709787627975-9cb37bbeca60?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
     ],
     beneficios: [
