@@ -61,7 +61,33 @@ class Interacao(BaseModel):
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
-class LeadCreate(BaseModel):
+class FeiraoQuizFields(BaseModel):
+    """Respostas do quiz de pré-qualificação do Feirão + dados de origem."""
+    model_config = ConfigDict(extra="ignore")
+    cidade: Optional[str] = None
+    objetivo: Optional[str] = None
+    prazo: Optional[str] = None
+    renda_familiar: Optional[str] = None
+    composicao_renda: Optional[str] = None
+    tipo_renda: List[str] = Field(default_factory=list)
+    fgts: Optional[str] = None
+    fgts_valor: Optional[str] = None
+    entrada: Optional[str] = None
+    moradia: Optional[str] = None
+    aluguel_valor: Optional[str] = None
+    financiamento: Optional[str] = None
+    financiamento_valor: Optional[str] = None
+    restricao: Optional[str] = None
+    regiao: Optional[str] = None
+    preferencias: List[str] = Field(default_factory=list)
+    confirmou_feirao: Optional[str] = None  # sim | talvez | nao
+    horario_feirao: Optional[str] = None    # manha | inicio_tarde | final_tarde
+    lgpd_consent: bool = False
+    utm: Optional[Dict[str, Any]] = None
+    session_id: Optional[str] = None
+
+
+class LeadCreate(FeiraoQuizFields):
     name: Optional[str] = None
     phone: Optional[str] = None
     email: Optional[str] = None
@@ -108,6 +134,33 @@ class Lead(BaseModel):
     tempo_total_segundos: int = 0
     lead_score: int = 0
     temperatura: str = "frio"
+    # --- Feirão: respostas do quiz ---
+    cidade: Optional[str] = None
+    objetivo: Optional[str] = None
+    prazo: Optional[str] = None
+    renda_familiar: Optional[str] = None
+    composicao_renda: Optional[str] = None
+    tipo_renda: List[str] = Field(default_factory=list)
+    fgts: Optional[str] = None
+    fgts_valor: Optional[str] = None
+    entrada: Optional[str] = None
+    moradia: Optional[str] = None
+    aluguel_valor: Optional[str] = None
+    financiamento: Optional[str] = None
+    financiamento_valor: Optional[str] = None
+    restricao: Optional[str] = None
+    regiao: Optional[str] = None
+    preferencias: List[str] = Field(default_factory=list)
+    confirmou_feirao: Optional[str] = None
+    horario_feirao: Optional[str] = None
+    lgpd_consent: bool = False
+    utm: Optional[Dict[str, Any]] = None
+    session_id: Optional[str] = None
+    # --- Feirão: inteligência ---
+    feirao_score: int = 0
+    classe: Optional[str] = None  # A|B|C|D
+    empreendimento_recomendado: Optional[str] = None
+    empreendimento_alternativas: List[str] = Field(default_factory=list)
     origem: Optional[str] = None
     status: str = "novo"  # Kanban: novo|contatado|agendado|negociacao|ganho|perdido
     channel: str = "direto"  # direto|indicacao|imobiliaria|campanha
@@ -344,6 +397,34 @@ async def create_lead(payload: LeadCreate):
     score = compute_lead_score(payload)
     temperatura = compute_temperature(score)
 
+    # --- Feirão pre-qualification (novo funil) ---
+    from feirao_core import (
+        compute_feirao_score,
+        classify_feirao,
+        temperatura_from_classe,
+        recomendar_empreendimentos,
+    )
+    from routers.feirao import load_config
+
+    payload_dict = payload.model_dump()
+    is_feirao = any(
+        payload_dict.get(k)
+        for k in ("objetivo", "prazo", "entrada", "renda_familiar", "regiao")
+    )
+    feirao_score = 0
+    classe = None
+    best = None
+    alts: List[str] = []
+    if is_feirao:
+        cfg = await load_config(db)
+        feirao_score = compute_feirao_score(payload_dict, cfg.get("weights", {}))
+        classe = classify_feirao(feirao_score, cfg.get("faixas", {}))
+        best, alts = recomendar_empreendimentos(
+            payload_dict, cfg.get("empreendimentos", {})
+        )
+        score = feirao_score
+        temperatura = temperatura_from_classe(classe)
+
     lead = Lead(
         name=(payload.name or "").strip() or None,
         phone=(payload.phone or "").strip() or None,
@@ -361,6 +442,31 @@ async def create_lead(payload: LeadCreate):
         temperatura=temperatura,
         origem=payload.origem,
         channel=payload.channel or "direto",
+        cidade=payload.cidade,
+        objetivo=payload.objetivo,
+        prazo=payload.prazo,
+        renda_familiar=payload.renda_familiar,
+        composicao_renda=payload.composicao_renda,
+        tipo_renda=payload.tipo_renda,
+        fgts=payload.fgts,
+        fgts_valor=payload.fgts_valor,
+        entrada=payload.entrada,
+        moradia=payload.moradia,
+        aluguel_valor=payload.aluguel_valor,
+        financiamento=payload.financiamento,
+        financiamento_valor=payload.financiamento_valor,
+        restricao=payload.restricao,
+        regiao=payload.regiao,
+        preferencias=payload.preferencias,
+        confirmou_feirao=payload.confirmou_feirao,
+        horario_feirao=payload.horario_feirao,
+        lgpd_consent=payload.lgpd_consent,
+        utm=payload.utm,
+        session_id=payload.session_id,
+        feirao_score=feirao_score,
+        classe=classe,
+        empreendimento_recomendado=best,
+        empreendimento_alternativas=alts,
     )
 
     # Round-robin auto-assignment for hot leads (score >= 90 OR atendimento
@@ -368,8 +474,10 @@ async def create_lead(payload: LeadCreate):
     # can pull manually from the Kanban.
     auto_assign = (
         score >= 90
+        or classe == "A"
         or payload.solicita_atendimento_imediato
         or payload.agendamento is not None
+        or payload.confirmou_feirao == "sim"
     )
     if auto_assign:
         from routers.brokers import (
@@ -529,14 +637,69 @@ async def capture_warehouse_signal(payload: WarehouseSignalCreate):
     return lead
 
 
+class AgendamentoFeiraoPatch(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    confirmou_feirao: Literal["sim", "talvez", "nao"]
+    horario_feirao: Optional[str] = None
+
+
+@api_router.patch("/leads/{lead_id}/agendamento")
+async def patch_agendamento_feirao(lead_id: str, payload: AgendamentoFeiraoPatch):
+    """Atualiza a confirmação de presença no Feirão após o resultado do quiz.
+    Recalcula o score (a dimensão 'visita' entra agora) e a classe."""
+    existing = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Lead não encontrado.")
+
+    from feirao_core import (
+        compute_feirao_score,
+        classify_feirao,
+        temperatura_from_classe,
+    )
+    from routers.feirao import load_config
+
+    existing["confirmou_feirao"] = payload.confirmou_feirao
+    cfg = await load_config(db)
+    feirao_score = compute_feirao_score(existing, cfg.get("weights", {}))
+    classe = classify_feirao(feirao_score, cfg.get("faixas", {}))
+
+    await db.leads.update_one(
+        {"id": lead_id},
+        {
+            "$set": {
+                "confirmou_feirao": payload.confirmou_feirao,
+                "horario_feirao": payload.horario_feirao,
+                "feirao_score": feirao_score,
+                "lead_score": feirao_score,
+                "classe": classe,
+                "temperatura": temperatura_from_classe(classe),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+        },
+    )
+    return {
+        "ok": True,
+        "confirmou_feirao": payload.confirmou_feirao,
+        "feirao_score": feirao_score,
+        "classe": classe,
+    }
+
+
 app.include_router(api_router)
 
 # ---- Admin routes (protected by JWT) ----
 from routers.admin import router as admin_router  # noqa: E402
 from routers.brokers import router as brokers_router  # noqa: E402
+from routers.feirao import (  # noqa: E402
+    public_router as feirao_public_router,
+    admin_feirao_router,
+    seed_config,
+)
 api_router_admin = APIRouter(prefix="/api")
 api_router_admin.include_router(admin_router)
 api_router_admin.include_router(brokers_router)
+api_router_admin.include_router(admin_feirao_router)
+api_router_admin.include_router(feirao_public_router)
 app.include_router(api_router_admin)
 
 # Expose db to admin routes via app.state
@@ -571,7 +734,10 @@ async def _on_startup():
         await db.leads.create_index("owner_broker_id")
         await db.brokers.create_index("id", unique=True)
         await db.brokers.create_index("active")
-        logger.info("Admin seeded + indexes ensured.")
+        await db.events.create_index("session_id")
+        await db.events.create_index("event")
+        await seed_config(db)
+        logger.info("Admin seeded + indexes ensured + feirao config seeded.")
     except Exception as exc:
         logger.exception("Startup init failed: %s", exc)
 

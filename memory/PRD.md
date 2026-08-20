@@ -1,4 +1,42 @@
-# PRD — Residencial Alameda 500 (Torres Engenharia)
+# PRD — Feirão do Imóvel Torres Engenharia (evoluído do Alameda 500)
+
+## 2026 — Transformação: Feirão do Imóvel Torres Engenharia (multi-empreendimento)
+Evento 19/09/2026 · Residencial Reserva (Reserva 025), Rua Terezina, 25, Alterosas, Serra-ES.
+Objetivo: landing interativa + quiz de pré-qualificação (concierge digital) que classifica leads e recomenda empreendimento.
+
+### Arquitetura (novo)
+- Rotas (react-router): `/` landing, `/quiz`, `/viva` `/alameda` `/life` `/aldeia`, `/admin`.
+- Frontend novo em `src/feirao/*` (Landing, Quiz, EmpreendimentoPage, FeiraoLayout, data.js, api.js). App.js reescrito com BrowserRouter. Simulador MCMV removido do fluxo público.
+- Backend: `feirao_core.py` (scoring 0-100, classe A/B/C/D, recomendação), `routers/feirao.py` (config público/admin, eventos, overview, funil). Lead model estendido com campos do quiz + inteligência + UTM. Config em `db.config` (_id=feirao), editável no admin.
+- Admin: nova aba "Feirão" (`src/admin/FeiraoView.jsx`) com visão geral, classes A/B/C/D, funil e distribuição. Kanban/Brokers/Warehouse mantidos.
+
+### Quiz (12 perguntas)
+objetivo, prazo, renda_familiar, composicao_renda, tipo_renda(multi), fgts(+valor), entrada, moradia(+aluguel), financiamento(+valor), restricao, regiao, preferencias(multi até 3).
+
+### Scoring (0-100, pesos configuráveis)
+prazo 20 · entrada 25 · renda 20 · financiamento 15 · intenção 10 · visita 10. Faixas A>=75, B 55-74, C 35-54, D<35. Mapeia temperatura legada (A=quente, B/C=morno, D=frio).
+
+### Recomendação
+Região + preferências + prioridade de campanha (Alameda destaque) + estoque>0. Melhor opção + até 2 alternativas.
+
+### Empreendimentos (estoque no admin)
+Viva 8 (Jacaraípe, praia/duplex/quintal), Alameda 5 (Serra, prioritário), Life 1 (última unid.), Aldeia 1 (última unid.). Preços/condições = "A DEFINIR / CONFIGURÁVEL NO ADMIN".
+
+### Integrações / contatos
+WhatsApp 5527998336937 (wa.me + código do lead). Analytics: eventos em `db.events` (page_view, quiz_started, quiz_step_completed, quiz_completed, lead_created, property_recommended, event_signup, appointment_created, whatsapp_clicked) + UTM (source/medium/campaign/term/content/origem). Meta Pixel/GA: estrutura pronta, sem IDs ainda.
+
+### Admin
+admin@feiraotorres.com.br / Feirao@Torres2026 (seed via .env).
+
+### Testes (2026)
+Backend 13/13 PASS. Frontend 6/6 PASS (desktop + mobile).
+
+### Pendências do cliente
+Logos/fotos oficiais (Torres + empreendimentos); preços/entradas/condições reais; opcional Meta Pixel/GA IDs.
+
+---
+
+# (Histórico) PRD — Residencial Alameda 500 (Torres Engenharia)
 
 ## Original Problem Statement
 Criar uma landing page interativa / concierge digital para o empreendimento "Residencial Alameda 500" (12 casas duplex, Alterosas, Serra/ES). Objetivo: filtrar e qualificar leads via jornada NÃO-linear onde o usuário explora o imóvel, vê opções de casas com plantas, responde quiz de perfil, simula financiamento (regras Caixa MCMV) e agenda visita ou fala com corretor.

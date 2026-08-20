@@ -6,7 +6,8 @@ import KanbanBoard from "./KanbanBoard";
 import LeadDetailDrawer from "./LeadDetailDrawer";
 import WarehouseView from "./WarehouseView";
 import BrokersView from "./BrokersView";
-import { Loader2, LayoutDashboard, Bell, Users } from "lucide-react";
+import FeiraoView from "./FeiraoView";
+import { Loader2, LayoutDashboard, Bell, Users, BarChart3 } from "lucide-react";
 
 const POLL_INTERVAL_MS = 30_000; // re-fetch leads every 30s
 
@@ -18,7 +19,7 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [filterTemp, setFilterTemp] = useState("");
   const [openLeadId, setOpenLeadId] = useState(null);
-  const [view, setView] = useState("pipeline"); // 'pipeline' | 'warehouse' | 'brokers'
+  const [view, setView] = useState("feirao"); // 'feirao' | 'pipeline' | 'warehouse' | 'brokers'
   const [brokers, setBrokers] = useState([]);
 
   const fetchBrokers = useCallback(async () => {
@@ -124,6 +125,14 @@ export default function AdminDashboard() {
       <div className="border-b border-[color:var(--torres-line)] bg-white">
         <div className="mx-auto flex max-w-[1600px] gap-1 px-6 sm:px-10" data-testid="admin-tabs">
           <TabButton
+            active={view === "feirao"}
+            onClick={() => setView("feirao")}
+            testid="admin-tab-feirao"
+            icon={<BarChart3 className="h-3.5 w-3.5" />}
+          >
+            Feirão
+          </TabButton>
+          <TabButton
             active={view === "pipeline"}
             onClick={() => setView("pipeline")}
             testid="admin-tab-pipeline"
@@ -159,7 +168,9 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {view === "pipeline" ? (
+      {view === "feirao" ? (
+        <FeiraoView />
+      ) : view === "pipeline" ? (
         <KanbanBoard
           columns={KANBAN_COLUMNS}
           leadsByStatus={leadsByStatus}

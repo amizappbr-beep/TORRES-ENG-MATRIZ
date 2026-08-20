@@ -101,3 +101,138 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  Transformar o app (Concierge Alameda 500) em uma landing page interativa do
+  "Feirão do Imóvel Torres Engenharia" (19/09/2026): quiz de pré-qualificação de
+  12 perguntas, scoring 0-100 + classe A/B/C/D, recomendação entre 4
+  empreendimentos (Viva/Alameda/Life/Aldeia), captura de lead + LGPD,
+  agendamento do Feirão, WhatsApp e CRM com visão geral/funil/distribuição.
+
+backend:
+  - task: "Feirão config (public + admin GET/PUT) e seed"
+    implemented: true
+    working: true
+    file: "routers/feirao.py, feirao_core.py, server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "GET /api/feirao/config (público) retorna event + empreendimentos (estoque). Admin GET/PUT /api/admin/feirao/config (JWT). Config semeada no startup em db.config _id=feirao."
+        - working: true
+          agent: "testing"
+          comment: "✅ VERIFIED: GET /api/feirao/config returns correct event (data_label='19 de setembro de 2026', local_nome='Residencial Reserva (Reserva 025)', whatsapp='5527998336937') and all 4 empreendimentos with correct stock (viva=8, alameda=5, life=1, aldeia=1). Admin GET /api/admin/feirao/config returns full config with weights/faixas. PUT /api/admin/feirao/config successfully updates and persists config."
+  - task: "Criação de lead do Feirão com scoring 0-100, classe A/B/C/D e recomendação"
+    implemented: true
+    working: true
+    file: "server.py, feirao_core.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "POST /api/leads agora aceita campos do quiz (objetivo, prazo, renda_familiar, entrada, financiamento, regiao, preferencias, etc). Calcula feirao_score (0-100), classe (A>=75,B55-74,C35-54,D<35), empreendimento_recomendado + alternativas. Mapeia lead_score=feirao_score e temperatura (A=quente,B/C=morno,D=frio). Sanity local: lead A=83->viva, lead D=14->alameda."
+        - working: true
+          agent: "testing"
+          comment: "✅ VERIFIED: HIGH-INTENT lead (sair_aluguel, imediato, 8_12k, 50_100k, aprovado, jacaraipe, praia/duplex/quintal) correctly scored 83, classe=A, temperatura=quente, empreendimento_recomendado=viva, with alternativas list. LOW-INTENT lead (pesquisando, nao_sei, ate_3k, sem_entrada, nunca) correctly scored 14, classe=D, temperatura=frio, empreendimento_recomendado=alameda. Both leads have UUID, lead_score=feirao_score, and proper schema."
+  - task: "PATCH agendamento do Feirão (recalcula score/visita)"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "PATCH /api/leads/{id}/agendamento (público) atualiza confirmou_feirao/horario_feirao e recalcula feirao_score + classe (dimensão visita entra agora)."
+        - working: true
+          agent: "testing"
+          comment: "✅ VERIFIED: PATCH /api/leads/{id}/agendamento with confirmou_feirao='sim' correctly recalculated score from 83 to 93 (visita dimension added 10 points), classe remains A, returns ok=true. Persistence verified via GET /api/leads - confirmou_feirao='sim' persisted correctly."
+  - task: "Analytics de funil (POST /api/feirao/events)"
+    implemented: true
+    working: true
+    file: "routers/feirao.py, server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "POST /api/feirao/events grava eventos (page_view, quiz_started, quiz_completed, whatsapp_clicked, etc) em db.events com session_id + utm."
+        - working: true
+          agent: "testing"
+          comment: "✅ VERIFIED: POST /api/feirao/events successfully tracked all 3 test events (quiz_started, page_view, whatsapp_clicked) with session_id. Each returns {ok:true}. Events are properly stored and reflected in admin funnel endpoint."
+  - task: "Admin overview + funnel do Feirão"
+    implemented: true
+    working: true
+    file: "routers/feirao.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "GET /api/admin/feirao/overview (total, hoje, classes A/B/C/D, inscritos, confirmados, por_empreendimento) e GET /api/admin/feirao/funnel (visitantes->...->whatsapp + por_origem). Protegidos por JWT."
+        - working: true
+          agent: "testing"
+          comment: "✅ VERIFIED: GET /api/admin/feirao/overview returns all required keys (total=4, hoje=4, classes={A:2,B:0,C:0,D:2}, inscritos_feirao=1, confirmados_feirao=1, por_empreendimento={viva:2,alameda:2,life:0,aldeia:0}). GET /api/admin/feirao/funnel returns funil keys (visitantes=3, iniciaram_quiz=2, finalizaram_quiz=0, cadastraram=2, agendaram=1, clicaram_whatsapp=1) and por_origem includes 'meta_ads'. Both endpoints protected by JWT."
+  - task: "Novo admin seed (feirão) + login JWT"
+    implemented: true
+    working: true
+    file: "backend/.env, auth.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "ADMIN_EMAIL=admin@feiraotorres.com.br / ADMIN_PASSWORD=Feirao@Torres2026. Endpoints admin existentes (leads, metrics, brokers) devem continuar funcionando."
+        - working: true
+          agent: "testing"
+          comment: "✅ VERIFIED: POST /api/admin/login with admin@feiraotorres.com.br / Feirao@Torres2026 returns valid JWT access_token. Legacy admin endpoints still working: GET /api/admin/metrics returns proper metrics (total=4, temperatura breakdown, kanban status), GET /api/admin/leads returns list of leads including newly created test leads. All admin endpoints properly protected by JWT."
+
+frontend:
+  - task: "Landing + Quiz + páginas de empreendimento + CRM Feirão"
+    implemented: true
+    working: true
+    file: "src/feirao/*, src/App.js, src/admin/FeiraoView.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Usuário autorizou teste de frontend. Testar fluxo completo público + admin."
+        - working: true
+          agent: "testing"
+          comment: "✅ COMPREHENSIVE FRONTEND TESTING COMPLETED - ALL TESTS PASSED. Desktop (1920x1080) + Mobile (390x844) testing successful. TEST 1 (Landing): Hero headline, stat tiles (15 oportunidades, 4 empreendimentos), 'Por que participar?' section with 5 cards, all 4 empreendimento cards (viva/alameda/life/aldeia), WhatsApp FAB, hero CTA navigation to /quiz - ALL WORKING. TEST 2 (Quiz Full Flow): Complete 12-question quiz flow with single-choice auto-advance, multi-choice with continue button, follow-up questions (fgts_valor, aluguel_valor, financiamento_valor), capture form with validation, result screen with personalized greeting 'Henrique', 'MELHOR OPÇÃO PARA VOCÊ' badge, correct recommendation 'Residencial Viva' for high-intent profile (jacaraipe region match), 'Outras opções' section - ALL WORKING. TEST 3 (Agendamento + WhatsApp): Clicked 'Sim' → horário buttons appeared, clicked 'Manhã' → 'Presença registrada!' confirmation shown, WhatsApp CTA with correct phone 5527998336937 and lead code in URL - ALL WORKING. TEST 4 (Validation): Empty form submission shows error 'Por favor, informe seu nome e WhatsApp', missing LGPD consent shows error 'Precisamos da sua autorização' - VALIDATION WORKING. TEST 5 (Empreendimento Pages): All 4 pages (/viva, /alameda, /life, /aldeia) render correctly with hero, benefits, gallery, price block 'A DEFINIR / CONFIGURÁVEL NO ADMIN', 'ÚLTIMA UNIDADE' badge correctly shown ONLY for /life and /aldeia, 'Fazer minha análise' CTA present - ALL WORKING. TEST 6 (Admin CRM): Login successful with admin@feiraotorres.com.br / Feirao@Torres2026, dashboard loads with Feirão tab active by default, 'Visão geral' stats (total leads, hoje, inscritos, confirmados, A+B, C+D), 'Classificação dos leads' with A/B/C/D cards, 'Funil de conversão' section, 'Distribuição por empreendimento' section, 'Origem dos leads', all tabs (Pipeline, Warehouse, Brokers) clickable without crashes - ALL WORKING. MOBILE TESTING: Landing page fully responsive, all 4 empreendimento cards visible, quiz functional on mobile, questions answerable - MOBILE WORKING. NO CRITICAL ISSUES FOUND. Network failures are CDN-related and don't affect functionality. Frontend is production-ready."
+
+metadata:
+  created_by: "main_agent"
+  version: "3.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Feirão config (public + admin GET/PUT) e seed"
+    - "Criação de lead do Feirão com scoring 0-100, classe A/B/C/D e recomendação"
+    - "PATCH agendamento do Feirão (recalcula score/visita)"
+    - "Admin overview + funnel do Feirão"
+    - "Novo admin seed (feirão) + login JWT"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+      message: "Backend do Feirão implementado. Testar: (1) GET /api/feirao/config; (2) POST /api/leads com payload de quiz gerando feirao_score/classe/recomendação corretos para perfis A e D; (3) PATCH /api/leads/{id}/agendamento recalculando; (4) POST /api/feirao/events; (5) login admin (admin@feiraotorres.com.br / Feirao@Torres2026) e GET /api/admin/feirao/overview + /funnel; (6) garantir que endpoints admin legados (leads/metrics/brokers) seguem OK. Não testar frontend ainda."
+    - agent: "testing"
+      message: "✅ ALL BACKEND TESTS PASSED (13/13). Comprehensive testing completed: (1) Public config endpoint returns correct event details and all 4 empreendimentos with proper stock levels. (2) Lead creation with HIGH-INTENT payload correctly scores 83, classe A, temperatura quente, recommends viva (jacaraipe region match). (3) Lead creation with LOW-INTENT payload correctly scores 14, classe D, temperatura frio, recommends alameda. (4) PATCH agendamento recalculates score from 83→93 (visita dimension adds 10 points) and persists correctly. (5) Event tracking works for all event types (quiz_started, page_view, whatsapp_clicked). (6) Admin login successful with correct credentials. (7) Admin overview shows proper aggregations (classes, confirmados, por_empreendimento). (8) Admin funnel shows proper counts and por_origem includes meta_ads. (9) Admin config GET/PUT works correctly. (10) Legacy admin endpoints (metrics, leads) still functioning properly. NO ISSUES FOUND. Backend is production-ready."
+    - agent: "testing"
+      message: "✅ FRONTEND TESTING COMPLETE - ALL SYSTEMS OPERATIONAL. Comprehensive end-to-end testing completed on desktop (1920x1080) and mobile (390x844) viewports. ALL 6 TEST SCENARIOS PASSED: (1) Landing page with all elements rendering correctly, (2) Complete 12-question quiz flow with proper validation and result screen showing correct recommendation (Residencial Viva for high-intent profile), (3) Agendamento functionality with confirmation message and WhatsApp integration, (4) Form validation working for empty fields and LGPD consent, (5) All 4 empreendimento pages rendering with correct badges, (6) Admin CRM login and Feirão dashboard with all sections (visão geral, classes, funil, distribuição) plus all tabs (Pipeline, Warehouse, Brokers) working. Mobile responsiveness verified. NO CRITICAL ISSUES. The Feirão do Imóvel Torres Engenharia app is PRODUCTION-READY. Main agent should summarize and finish."
+
