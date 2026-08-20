@@ -78,7 +78,8 @@ export const EMPREENDIMENTOS = {
     cover: "/aldeia-fachada.jpg",
     galeria: [
       "/aldeia-fachada.jpg",
-      "https://images.unsplash.com/photo-1709787627975-9cb37bbeca60?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+      "/aldeia-int-1.jpg",
+      "/aldeia-int-2.jpg",
     ],
     beneficios: [
       "Última unidade",
