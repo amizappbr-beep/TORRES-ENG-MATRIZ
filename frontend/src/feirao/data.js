@@ -40,10 +40,9 @@ export const EMPREENDIMENTOS = {
     nome: "Alameda",
     regiao: "Serra",
     tagline: "Oportunidade prioritária do Feirão. Estoque reduzido.",
-    cover:
-      "https://images.pexels.com/photos/19344325/pexels-photo-19344325.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    cover: "/alameda-fachada.jpg",
     galeria: [
-      "https://images.pexels.com/photos/19344325/pexels-photo-19344325.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "/alameda-fachada.jpg",
       "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
       "https://images.pexels.com/photos/6980724/pexels-photo-6980724.jpeg?auto=compress&cs=tinysrgb&w=1200",
     ],
