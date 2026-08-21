@@ -10,7 +10,7 @@ export function TorresLogo({ boxed = false, className = "" }) {
     <img
       src={LOGO}
       alt="Torres Engenharia"
-      className={`h-6 w-auto sm:h-7 ${className}`}
+      className={`h-8 w-auto sm:h-10 ${className}`}
     />
   );
   return (
@@ -69,9 +69,11 @@ export default function FeiraoLayout({ children, hideHeader = false }) {
         <div className="mx-auto max-w-6xl px-4 py-10 text-sm text-white/70">
           <TorresLogo />
           <p className="mt-4 max-w-lg">
-            Feirão do Imóvel Torres Engenharia — 19 de setembro de 2026.
-            Residencial Reserva (Reserva 025), Rua Terezina, 25, Alterosas,
-            Serra - ES.
+            II Feirão do Imóvel Torres Engenharia — 19 de setembro de 2026.
+          </p>
+          <p className="mt-1 max-w-lg">
+            <span className="font-semibold text-white/90">Local do Evento:</span>{" "}
+            Residencial Reserva 025 — Rua Terezina, 25, Alterosas, Serra - ES.
           </p>
           <p className="mt-3 text-xs text-white/45">
             As oportunidades apresentadas estão sujeitas à disponibilidade e a

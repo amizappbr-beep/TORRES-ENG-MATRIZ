@@ -86,13 +86,18 @@ export default function Landing() {
           }}
         />
         <div className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white">
-            <CalendarDays className="h-4 w-4" />
-            {event?.data_label || "19 de setembro de 2026"} ·{" "}
-            {event?.local_nome || "Residencial Reserva"}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-[#0B2A4A]">
+              <CalendarDays className="h-4 w-4" />
+              {event?.data_label || "19 de setembro de 2026"}
+            </div>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white">
+              <MapPin className="h-3.5 w-3.5" />
+              Local do Evento: {event?.local_nome || "Residencial Reserva 025"}
+            </div>
           </div>
           <h1 className="mt-5 max-w-2xl text-4xl font-extrabold leading-tight text-white sm:text-5xl">
-            FEIRÃO DO IMÓVEL TORRES ENGENHARIA
+            II FEIRÃO DO IMÓVEL TORRES ENGENHARIA
           </h1>
           <p className="mt-4 max-w-xl text-lg text-white/85">
             Um dia para conhecer uma casa pronta, descobrir as melhores
@@ -165,6 +170,9 @@ export default function Landing() {
             {Object.values(EMPREENDIMENTOS).map((e) => {
               const estoque = emps[e.slug]?.estoque;
               const ultima = emps[e.slug]?.ultima_unidade;
+              const precoLabel = emps[e.slug]?.preco_label;
+              const entradaLabel = emps[e.slug]?.entrada_label;
+              const statusLabel = emps[e.slug]?.status_label;
               return (
                 <Link
                   key={e.slug}
@@ -178,11 +186,15 @@ export default function Landing() {
                       alt={e.nome}
                       className="h-full w-full object-cover transition group-hover:scale-105"
                     />
-                    {ultima && (
+                    {statusLabel ? (
+                      <span className="absolute left-3 top-3 rounded-full bg-green-500 px-2 py-1 text-[11px] font-bold text-white">
+                        {statusLabel}
+                      </span>
+                    ) : ultima ? (
                       <span className="absolute left-3 top-3 rounded-full bg-amber-400 px-2 py-1 text-[11px] font-bold text-[#0B2A4A]">
                         ÚLTIMA UNIDADE
                       </span>
-                    )}
+                    ) : null}
                   </div>
                   <div className="p-4">
                     <div className="flex items-center gap-1 text-xs text-slate-500">
@@ -191,7 +203,16 @@ export default function Landing() {
                     <h3 className="mt-1 text-base font-bold text-[#0B2A4A]">
                       {e.nome}
                     </h3>
-                    <p className="mt-1 text-sm text-slate-600">{e.tagline}</p>
+                    {precoLabel && (
+                      <p className="mt-1 text-lg font-extrabold text-[#0B2A4A]">
+                        {precoLabel}
+                      </p>
+                    )}
+                    {entradaLabel && (
+                      <p className="text-xs font-semibold text-amber-600">
+                        Entrada: {entradaLabel}
+                      </p>
+                    )}
                     {estoque != null && (
                       <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-[#EAF0F7] px-2.5 py-1 text-xs font-semibold text-[#0B2A4A]">
                         <CheckCircle2 className="h-3.5 w-3.5" />

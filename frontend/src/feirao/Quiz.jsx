@@ -414,11 +414,15 @@ export default function Quiz() {
                   <span className="absolute left-3 top-3 rounded-full bg-[#0B2A4A] px-3 py-1 text-[11px] font-bold text-white">
                     MELHOR OPÇÃO PARA VOCÊ
                   </span>
-                  {empData.best.ultima_unidade && (
+                  {empData.best.status_label ? (
+                    <span className="absolute right-3 top-3 rounded-full bg-green-500 px-2 py-1 text-[11px] font-bold text-white">
+                      {empData.best.status_label}
+                    </span>
+                  ) : empData.best.ultima_unidade ? (
                     <span className="absolute right-3 top-3 rounded-full bg-amber-400 px-2 py-1 text-[11px] font-bold text-[#0B2A4A]">
                       ÚLTIMA UNIDADE
                     </span>
-                  )}
+                  ) : null}
                 </div>
                 <div className="p-5">
                   <div className="flex items-center gap-1 text-xs text-slate-500">
@@ -434,7 +438,24 @@ export default function Quiz() {
                   <h2 className="mt-1 text-xl font-extrabold text-[#0B2A4A]">
                     {empData.best.nome}
                   </h2>
-                  <p className="mt-1 text-sm text-slate-600">
+                  {empData.best.preco_label && (
+                    <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <span className="text-lg font-extrabold text-[#0B2A4A]">
+                        {empData.best.preco_label}
+                      </span>
+                      {empData.best.entrada_label && (
+                        <span className="text-sm font-semibold text-amber-600">
+                          Entrada: {empData.best.entrada_label}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {empData.best.obra_label && (
+                    <p className="text-xs font-medium text-slate-500">
+                      {empData.best.obra_label}
+                    </p>
+                  )}
+                  <p className="mt-2 text-sm text-slate-600">
                     {empData.best.descricao}
                   </p>
                   <p className="mt-3 rounded-lg bg-slate-50 p-3 text-xs text-slate-500">

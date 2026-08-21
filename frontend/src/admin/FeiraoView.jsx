@@ -4,9 +4,9 @@ import { Loader2, Users2, CalendarCheck, TrendingUp } from "lucide-react";
 
 const EMP_LABELS = {
   viva: "Residencial Viva",
-  alameda: "Alameda",
-  life: "Residencial Life",
-  aldeia: "Residencial Aldeia",
+  alameda: "Alameda 500",
+  life: "Life 740",
+  aldeia: "Aldeia 350",
 };
 
 const CLASSE_COLORS = {

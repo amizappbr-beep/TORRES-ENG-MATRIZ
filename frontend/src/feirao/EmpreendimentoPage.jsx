@@ -62,11 +62,15 @@ export default function EmpreendimentoPage({ slug }) {
           }}
         />
         <div className="relative mx-auto max-w-5xl px-4 py-16">
-          {cfg.ultima_unidade && (
+          {cfg.status_label ? (
+            <span className="inline-block rounded-full bg-green-500 px-3 py-1 text-xs font-bold text-white">
+              {cfg.status_label}
+            </span>
+          ) : cfg.ultima_unidade ? (
             <span className="inline-block rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-[#0B2A4A]">
               ÚLTIMA UNIDADE
             </span>
-          )}
+          ) : null}
           <div className="mt-3 flex items-center gap-1 text-sm text-white/80">
             <MapPin className="h-4 w-4" /> {stat.regiao}
           </div>
@@ -74,8 +78,20 @@ export default function EmpreendimentoPage({ slug }) {
             {stat.nome}
           </h1>
           <p className="mt-3 max-w-xl text-lg text-white/85">{stat.tagline}</p>
+          {cfg.preco_label && (
+            <div className="mt-5 inline-flex flex-col rounded-2xl bg-white/10 px-5 py-3 backdrop-blur">
+              <span className="text-2xl font-extrabold text-white sm:text-3xl">
+                {cfg.preco_label}
+              </span>
+              {cfg.entrada_label && (
+                <span className="text-sm font-semibold text-amber-300">
+                  Entrada: {cfg.entrada_label}
+                </span>
+              )}
+            </div>
+          )}
           {estoque != null && (
-            <div className="mt-4 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 text-sm font-semibold text-white">
+            <div className="mt-4 flex items-center gap-1 text-sm font-semibold text-white/80">
               <CheckCircle2 className="h-4 w-4" />
               {estoque} {estoque === 1 ? "unidade disponível" : "unidades disponíveis"}
             </div>
@@ -112,16 +128,40 @@ export default function EmpreendimentoPage({ slug }) {
             </div>
           ))}
         </div>
-        <div className="mt-8 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 sm:grid-cols-2">
-          <div>
-            <div className="font-semibold text-slate-500">Preço</div>
-            <div>{cfg.preco_label || "A DEFINIR / CONFIGURÁVEL NO ADMIN"}</div>
+        {/* DESTAQUE COMERCIAL */}
+        <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border-2 border-[#0B2A4A] bg-[#0B2A4A] p-4 text-white shadow-sm">
+            <div className="text-xs font-semibold uppercase tracking-wide text-white/70">
+              Preço
+            </div>
+            <div className="mt-1 text-xl font-extrabold">
+              {cfg.preco_label || "A DEFINIR / CONFIGURÁVEL NO ADMIN"}
+            </div>
           </div>
-          <div>
-            <div className="font-semibold text-slate-500">Entrada</div>
-            <div>{cfg.entrada_label || "A DEFINIR / CONFIGURÁVEL NO ADMIN"}</div>
+          <div className="rounded-2xl border-2 border-amber-400 bg-amber-50 p-4 shadow-sm">
+            <div className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+              Entrada
+            </div>
+            <div className="mt-1 text-xl font-extrabold text-amber-700">
+              {cfg.entrada_label || "A DEFINIR / CONFIGURÁVEL NO ADMIN"}
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              {cfg.status_label ? "Situação" : "Entrega"}
+            </div>
+            <div
+              className={`mt-1 text-xl font-extrabold ${
+                cfg.status_label ? "text-green-600" : "text-[#0B2A4A]"
+              }`}
+            >
+              {cfg.obra_label || "A DEFINIR"}
+            </div>
           </div>
         </div>
+        <p className="mt-3 text-xs text-slate-400">
+          Valores e condições sujeitos à disponibilidade e a análise de crédito.
+        </p>
       </section>
 
       {/* GALERIA */}

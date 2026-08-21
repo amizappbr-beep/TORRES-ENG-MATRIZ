@@ -19,8 +19,13 @@ prazo 20 · entrada 25 · renda 20 · financiamento 15 · intenção 10 · visit
 ### Recomendação
 Região + preferências + prioridade de campanha (Alameda destaque) + estoque>0. Melhor opção + até 2 alternativas.
 
-### Empreendimentos (estoque no admin)
-Viva 8 (Jacaraípe, praia/duplex/quintal), Alameda 5 (Serra, prioritário), Life 1 (última unid.), Aldeia 1 (última unid.). Preços/condições = "A DEFINIR / CONFIGURÁVEL NO ADMIN".
+### Empreendimentos (estoque + condições comerciais no admin)
+Viva (Residencial Viva) 8 · Jacaraípe · A partir de R$ 330.000 · 3x de R$ 15.000 · obra Jul/2027.
+Alameda 500 · 5 · Serra (prioritário) · A partir de R$ 309.990 · 3x de R$ 15.000 · obra Maio/2028.
+Life 740 · 1 · última unidade · R$ 299.000 · 3x de R$ 15.000 · obra Dez/2026.
+Aldeia 350 · 1 · PRONTA PARA MORAR · R$ 299.000 · entrada 20%.
+Evento: II Feirão · 19/09/2026 · Local do Evento: Residencial Reserva 025 (Rua Terezina, 25, Alterosas, Serra-ES).
+Todos os valores/estoque editáveis via config (admin). Deploy: mudanças no preview exigem redeploy para produção (torres-pre-quali.emergent.host).
 
 ### Integrações / contatos
 WhatsApp 5527998336937 (wa.me + código do lead). Analytics: eventos em `db.events` (page_view, quiz_started, quiz_step_completed, quiz_completed, lead_created, property_recommended, event_signup, appointment_created, whatsapp_clicked) + UTM (source/medium/campaign/term/content/origem). Meta Pixel/GA: estrutura pronta, sem IDs ainda.

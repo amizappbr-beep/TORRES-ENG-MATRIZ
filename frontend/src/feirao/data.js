@@ -37,9 +37,9 @@ export const EMPREENDIMENTOS = {
   },
   alameda: {
     slug: "alameda",
-    nome: "Alameda",
+    nome: "Alameda 500",
     regiao: "Serra",
-    tagline: "Oportunidade prioritária do Feirão. Estoque reduzido.",
+    tagline: "Oportunidade prioritária do II Feirão. Estoque reduzido.",
     cover: "/alameda-fachada.jpg",
     galeria: [
       "/alameda-fachada.jpg",
@@ -53,11 +53,11 @@ export const EMPREENDIMENTOS = {
       "Estoque reduzido — oportunidade real",
     ],
     descricao:
-      "O Alameda é o empreendimento prioritário desta campanha, com estoque reduzido e condições especiais no Feirão. Possibilidade de análise de financiamento conforme perfil.",
+      "O Alameda 500 é o empreendimento prioritário desta campanha, com estoque reduzido e condições especiais no II Feirão. Possibilidade de análise de financiamento conforme perfil.",
   },
   life: {
     slug: "life",
-    nome: "Residencial Life",
+    nome: "Life 740",
     regiao: "Serra",
     tagline: "Última unidade disponível.",
     cover: "/life-fachada.jpg",
@@ -69,13 +69,13 @@ export const EMPREENDIMENTOS = {
     ],
     beneficios: ["Última unidade", "Pronta para morar", "Localização na Serra"],
     descricao:
-      "O Residencial Life está na sua última unidade. Uma oportunidade real de garantir uma casa Torres pronta.",
+      "O Life 740 está na sua última unidade. Uma oportunidade real de garantir uma casa Torres pronta.",
   },
   aldeia: {
     slug: "aldeia",
-    nome: "Residencial Aldeia",
+    nome: "Aldeia 350",
     regiao: "Serra",
-    tagline: "Última unidade disponível.",
+    tagline: "Pronta para morar. Última unidade disponível.",
     cover: "/aldeia-fachada.jpg",
     galeria: [
       "/aldeia-fachada.jpg",
@@ -88,7 +88,7 @@ export const EMPREENDIMENTOS = {
       "Perfil familiar",
     ],
     descricao:
-      "O Residencial Aldeia está na sua última unidade, em um empreendimento já entregue e habitado — prova do padrão Torres Engenharia.",
+      "O Aldeia 350 está pronto para morar, na sua última unidade, em um empreendimento já entregue e habitado — prova do padrão Torres Engenharia.",
   },
 };
 
