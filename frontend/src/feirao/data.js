@@ -291,9 +291,9 @@ export const QUIZ = [
 ];
 
 export const HORARIOS = [
-  { value: "manha", label: "Manhã" },
-  { value: "inicio_tarde", label: "Início da tarde" },
-  { value: "final_tarde", label: "Final da tarde" },
+  { value: "09_10", label: "09h às 10h" },
+  { value: "10_11", label: "10h às 11h" },
+  { value: "11_12", label: "11h às 12h" },
 ];
 
 export function buildWhatsappUrl({ phone, empreendimentoNome, leadId }) {

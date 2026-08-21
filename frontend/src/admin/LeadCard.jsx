@@ -78,6 +78,15 @@ export default function LeadCard({ lead, onOpen, onStatusChange }) {
               {lead.phone}
             </div>
           )}
+          {lead.id && (
+            <div
+              data-testid={`lead-card-${lead.id}-codigo`}
+              className="mt-0.5 font-mono text-[10px] font-bold tracking-wider"
+              style={{ color: "var(--torres-muted)" }}
+            >
+              Cód. {lead.id.slice(0, 8).toUpperCase()}
+            </div>
+          )}
         </div>
 
         {/* Status menu (mobile-friendly dropdown fallback) */}

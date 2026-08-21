@@ -189,6 +189,9 @@ const QUIZ_LABELS = {
   },
   horario_feirao: {
     __label: "Horário preferido",
+    "09_10": "09h às 10h",
+    "10_11": "10h às 11h",
+    "11_12": "11h às 12h",
     manha: "Manhã",
     inicio_tarde: "Início da tarde",
     final_tarde: "Final da tarde",
@@ -315,6 +318,15 @@ export default function LeadDetailDrawer({ leadId, onClose, onStatusChanged, bro
             <div className="serif mt-1 truncate text-xl font-semibold" style={{ color: "var(--torres-ink)" }}>
               {lead?.name || "(sem nome)"}
             </div>
+            {lead?.id && (
+              <div
+                className="mt-0.5 inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-bold tracking-wider text-slate-600"
+                data-testid="lead-drawer-codigo"
+                title="Código de atendimento informado ao cliente"
+              >
+                Cód. {lead.id.slice(0, 8).toUpperCase()}
+              </div>
+            )}
           </div>
           <button
             onClick={onClose}

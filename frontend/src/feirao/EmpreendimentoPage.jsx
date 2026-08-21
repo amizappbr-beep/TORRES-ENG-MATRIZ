@@ -199,7 +199,8 @@ export default function EmpreendimentoPage({ slug }) {
             <div className="flex items-center gap-2 text-white">
               <CalendarDays className="h-5 w-5" />
               <span className="font-bold">
-                {event?.data_label || "19 de setembro de 2026"}
+                {event?.data_label || "19 de setembro de 2026"} ·{" "}
+                {event?.horario_label || "das 9h às 12h"}
               </span>
             </div>
             <p className="mt-1 text-sm text-white/80">

@@ -24,6 +24,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "nome": "II Feirão do Imóvel Torres Engenharia",
         "data": "2026-09-19",
         "data_label": "19 de setembro de 2026",
+        "horario_label": "das 9h às 12h",
         "local_nome": "Residencial Reserva 025",
         "endereco": "Rua Terezina, 25 - Alterosas, Serra - ES",
         "whatsapp": "5527998336937",

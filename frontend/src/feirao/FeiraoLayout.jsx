@@ -69,7 +69,8 @@ export default function FeiraoLayout({ children, hideHeader = false }) {
         <div className="mx-auto max-w-6xl px-4 py-10 text-sm text-white/70">
           <TorresLogo />
           <p className="mt-4 max-w-lg">
-            II Feirão do Imóvel Torres Engenharia — 19 de setembro de 2026.
+            II Feirão do Imóvel Torres Engenharia — 19 de setembro de 2026, das
+            9h às 12h.
           </p>
           <p className="mt-1 max-w-lg">
             <span className="font-semibold text-white/90">Local do Evento:</span>{" "}

@@ -508,7 +508,7 @@ export default function Quiz() {
               <div className="flex items-center gap-2 text-[#0B2A4A]">
                 <CalendarCheck className="h-5 w-5" />
                 <h3 className="text-base font-bold">
-                  Você pretende participar do Feirão no dia 19/09?
+                  Você pretende participar do Feirão no dia 19/09 (das 9h às 12h)?
                 </h3>
               </div>
               <div className="mt-4 grid grid-cols-3 gap-2">
@@ -535,7 +535,7 @@ export default function Quiz() {
               {agend.confirmou === "sim" && (
                 <div className="mt-4">
                   <p className="text-sm font-medium text-slate-600">
-                    Qual horário é melhor para você?
+                    Qual horário é melhor para você? (o evento acontece das 9h às 12h)
                   </p>
                   <div className="mt-2 grid grid-cols-3 gap-2">
                     {HORARIOS.map((h) => (

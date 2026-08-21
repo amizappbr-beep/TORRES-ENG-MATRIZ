@@ -89,7 +89,8 @@ export default function Landing() {
           <div className="flex flex-wrap items-center gap-2">
             <div className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-[#0B2A4A]">
               <CalendarDays className="h-4 w-4" />
-              {event?.data_label || "19 de setembro de 2026"}
+              {event?.data_label || "19 de setembro de 2026"} ·{" "}
+              {event?.horario_label || "das 9h às 12h"}
             </div>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white">
               <MapPin className="h-3.5 w-3.5" />
