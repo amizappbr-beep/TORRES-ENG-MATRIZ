@@ -52,6 +52,159 @@ const REGIAO_LABEL = {
   qualquer: "Qualquer",
 };
 
+// ---- Feirão: rótulos das respostas do quiz ----
+const EMP_NOME = {
+  viva: "Residencial Viva",
+  alameda: "Alameda 500",
+  life: "Life 740",
+  aldeia: "Aldeia 350",
+};
+const CLASSE_INFO = {
+  A: { label: "Alta prioridade", desc: "Compra rápida, com entrada e renda compatíveis.", color: "#059669", bg: "#ECFDF5" },
+  B: { label: "Boa oportunidade", desc: "Bom potencial; precisa de simulação/acompanhamento.", color: "#2563EB", bg: "#EFF6FF" },
+  C: { label: "Nutrição", desc: "Interesse real, sem urgência. Nutrir e acompanhar.", color: "#D97706", bg: "#FFFBEB" },
+  D: { label: "Descoberta", desc: "Pesquisando; sem planejamento financeiro ainda.", color: "#64748B", bg: "#F1F5F9" },
+};
+const QUIZ_LABELS = {
+  objetivo: {
+    __label: "Objetivo",
+    primeira_casa: "Primeira casa",
+    sair_aluguel: "Sair do aluguel",
+    casa_maior: "Casa maior",
+    investir: "Investir",
+    pesquisando: "Apenas pesquisando",
+  },
+  prazo: {
+    __label: "Prazo de compra",
+    imediato: "Imediatamente",
+    "30d": "Próximos 30 dias",
+    "1_3m": "1 a 3 meses",
+    "3_6m": "3 a 6 meses",
+    nao_sei: "Ainda não sei",
+  },
+  renda_familiar: {
+    __label: "Renda familiar",
+    ate_3k: "Até R$ 3.000",
+    "3_4.5k": "R$ 3.001 a 4.500",
+    "4.5_6k": "R$ 4.501 a 6.000",
+    "6_8k": "R$ 6.001 a 8.000",
+    "8_12k": "R$ 8.001 a 12.000",
+    acima_12k: "Acima de R$ 12.000",
+  },
+  composicao_renda: {
+    __label: "Composição de renda",
+    sozinho: "Sozinho",
+    conjuge: "Cônjuge/companheiro(a)",
+    familiar: "Familiar",
+    nao_sei: "Ainda não sei",
+  },
+  tipo_renda: {
+    __label: "Tipo de renda",
+    clt: "CLT",
+    servidor: "Servidor público",
+    empresario: "Empresário",
+    mei: "MEI",
+    autonomo: "Autônomo",
+    aposentado: "Aposentado",
+    outro: "Outro",
+  },
+  fgts: { __label: "Possui FGTS", sim: "Sim", nao: "Não", nao_sei: "Não sei" },
+  fgts_valor: {
+    __label: "Valor do FGTS",
+    ate_10k: "Até R$ 10 mil",
+    "10_30k": "R$ 10 a 30 mil",
+    "30_50k": "R$ 30 a 50 mil",
+    mais_50k: "Mais de R$ 50 mil",
+    nao_sei: "Não sei",
+  },
+  entrada: {
+    __label: "Entrada disponível",
+    sem_entrada: "Sem entrada",
+    ate_10k: "Até R$ 10 mil",
+    "10_30k": "R$ 10 a 30 mil",
+    "30_50k": "R$ 30 a 50 mil",
+    "50_100k": "R$ 50 a 100 mil",
+    "100_150k": "R$ 100 a 150 mil",
+    acima_150k: "Acima de R$ 150 mil",
+  },
+  moradia: {
+    __label: "Moradia atual",
+    aluguel: "Aluguel",
+    familiares: "Com familiares",
+    proprio: "Imóvel próprio",
+    financiado: "Imóvel financiado",
+    outro: "Outro",
+  },
+  aluguel_valor: {
+    __label: "Valor do aluguel",
+    ate_800: "Até R$ 800",
+    "800_1200": "R$ 800 a 1.200",
+    "1200_1800": "R$ 1.200 a 1.800",
+    acima_1800: "Acima de R$ 1.800",
+  },
+  financiamento: {
+    __label: "Financiamento",
+    aprovado: "Já aprovado",
+    nao_aprovado: "Não aprovado",
+    nao_conclui: "Não concluiu",
+    nunca: "Nunca fez",
+  },
+  financiamento_valor: {
+    __label: "Valor aprovado",
+    ate_150k: "Até R$ 150 mil",
+    "150_250k": "R$ 150 a 250 mil",
+    "250_400k": "R$ 250 a 400 mil",
+    acima_400k: "Acima de R$ 400 mil",
+  },
+  restricao: {
+    __label: "Restrição de crédito",
+    nao: "Não",
+    sim: "Sim",
+    nao_certeza: "Não tem certeza",
+  },
+  regiao: {
+    __label: "Região de interesse",
+    jacaraipe: "Jacaraípe",
+    alterosas: "Alterosas",
+    serra: "Serra",
+    aberto: "Aberto a regiões",
+    todas: "Todas",
+  },
+  preferencias: {
+    __label: "Preferências",
+    preco: "Preço",
+    entrada_facil: "Entrada facilitada",
+    localizacao: "Localização",
+    praia: "Proximidade da praia",
+    quintal: "Quintal",
+    duplex: "Casa duplex",
+    ultima_unidade: "Última unidade",
+    valorizacao: "Valorização",
+  },
+  confirmou_feirao: {
+    __label: "Presença no Feirão",
+    sim: "Confirmou",
+    talvez: "Talvez",
+    nao: "Não vai",
+  },
+  horario_feirao: {
+    __label: "Horário preferido",
+    manha: "Manhã",
+    inicio_tarde: "Início da tarde",
+    final_tarde: "Final da tarde",
+  },
+};
+
+function quizVal(field, value) {
+  const map = QUIZ_LABELS[field];
+  if (!map || value == null || value === "") return null;
+  if (Array.isArray(value)) {
+    const arr = value.map((v) => map[v] || v);
+    return arr.length ? arr.join(", ") : null;
+  }
+  return map[value] || value;
+}
+
 export default function LeadDetailDrawer({ leadId, onClose, onStatusChanged, brokers = [], onOwnerChanged }) {
   const { axiosAdmin } = useAdmin();
   const [lead, setLead] = useState(null);
@@ -129,7 +282,8 @@ export default function LeadDetailDrawer({ leadId, onClose, onStatusChanged, bro
     const cleaned = lead.phone.replace(/\D/g, "");
     const withCountry = cleaned.startsWith("55") ? cleaned : `55${cleaned}`;
     const greeting = lead.name ? `Olá ${lead.name},` : "Olá,";
-    const msg = `${greeting} aqui é da Torres Engenharia sobre o seu interesse no Residencial Alameda 500. Posso te ajudar?`;
+    const empNome = EMP_NOME[lead.empreendimento_recomendado] || "os empreendimentos do Feirão";
+    const msg = `${greeting} aqui é da Torres Engenharia sobre o seu interesse no ${empNome} (II Feirão do Imóvel). Posso te ajudar?`;
     window.open(`https://wa.me/${withCountry}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
   };
 
@@ -284,32 +438,213 @@ export default function LeadDetailDrawer({ leadId, onClose, onStatusChanged, bro
               )}
             </div>
 
-            {/* Scoring */}
-            <section className="mt-5 rounded-2xl border border-[color:var(--torres-line)] bg-white p-4">
-              <div className="flex items-center gap-2">
-                <Flame className="h-4 w-4" style={{ color: "var(--torres-indigo)" }} />
-                <div className="serif text-sm font-semibold" style={{ color: "var(--torres-ink)" }}>
-                  Engajamento
+            {/* Qualificação — Feirão */}
+            {lead.classe ? (
+              <section
+                className="mt-5 rounded-2xl border border-[color:var(--torres-line)] bg-white p-4"
+                data-testid="lead-drawer-qualificacao"
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" style={{ color: "var(--torres-indigo)" }} />
+                  <div className="serif text-sm font-semibold" style={{ color: "var(--torres-ink)" }}>
+                    Qualificação · II Feirão
+                  </div>
                 </div>
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="serif text-3xl font-bold" style={{ color: "var(--torres-ink)" }}>
-                  {lead.lead_score}
-                </span>
-                <span className="text-sm" style={{ color: "var(--torres-muted)" }}>
-                  / 150 · {temp.text}
-                </span>
-              </div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[color:var(--torres-line)]">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${Math.min(100, (lead.lead_score / 150) * 100)}%`,
-                    backgroundColor: temp.dot,
-                  }}
-                />
-              </div>
-            </section>
+
+                <div className="mt-3 flex items-center gap-3">
+                  <span
+                    className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl font-extrabold"
+                    style={{
+                      color: (CLASSE_INFO[lead.classe] || CLASSE_INFO.D).color,
+                      backgroundColor: (CLASSE_INFO[lead.classe] || CLASSE_INFO.D).bg,
+                    }}
+                  >
+                    {lead.classe}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="text-sm font-bold" style={{ color: "var(--torres-ink)" }}>
+                      Lead {lead.classe} · {(CLASSE_INFO[lead.classe] || CLASSE_INFO.D).label}
+                    </div>
+                    <div className="text-xs" style={{ color: "var(--torres-muted)" }}>
+                      {(CLASSE_INFO[lead.classe] || CLASSE_INFO.D).desc}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="serif text-3xl font-bold" style={{ color: "var(--torres-ink)" }}>
+                    {lead.feirao_score ?? lead.lead_score}
+                  </span>
+                  <span className="text-sm" style={{ color: "var(--torres-muted)" }}>
+                    / 100 · score de qualificação
+                  </span>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[color:var(--torres-line)]">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${Math.min(100, lead.feirao_score ?? lead.lead_score)}%`,
+                      backgroundColor: (CLASSE_INFO[lead.classe] || CLASSE_INFO.D).color,
+                    }}
+                  />
+                </div>
+
+                {/* Recomendação */}
+                {lead.empreendimento_recomendado && (
+                  <div className="mt-4 rounded-xl bg-[color:var(--torres-cream)] p-3">
+                    <div className="text-[10px] uppercase tracking-wider" style={{ color: "var(--torres-muted)" }}>
+                      Empreendimento recomendado
+                    </div>
+                    <div className="text-sm font-bold" style={{ color: "var(--torres-ink)" }}>
+                      {EMP_NOME[lead.empreendimento_recomendado] || lead.empreendimento_recomendado}
+                    </div>
+                    {(lead.empreendimento_alternativas || []).length > 0 && (
+                      <div className="mt-0.5 text-xs" style={{ color: "var(--torres-muted)" }}>
+                        Alternativas:{" "}
+                        {(lead.empreendimento_alternativas || [])
+                          .map((s) => EMP_NOME[s] || s)
+                          .join(" · ")}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Sinais / critério de qualificação */}
+                <div className="mt-4">
+                  <div className="mb-1.5 text-[10px] uppercase tracking-wider" style={{ color: "var(--torres-muted)" }}>
+                    Sinais de qualificação
+                  </div>
+                  <div className="flex flex-wrap gap-1.5" data-testid="lead-drawer-sinais">
+                    {[
+                      ["prazo", lead.prazo],
+                      ["entrada", lead.entrada],
+                      ["renda_familiar", lead.renda_familiar],
+                      ["financiamento", lead.financiamento],
+                    ].map(([field, val]) => {
+                      const label = quizVal(field, val);
+                      if (!label) return null;
+                      return (
+                        <span
+                          key={field}
+                          className="inline-flex items-center gap-1 rounded-full border border-[color:var(--torres-line)] bg-white px-2.5 py-1 text-[11px] font-semibold"
+                          style={{ color: "var(--torres-ink)" }}
+                        >
+                          <span style={{ color: "var(--torres-muted)" }}>
+                            {QUIZ_LABELS[field].__label}:
+                          </span>
+                          {label}
+                        </span>
+                      );
+                    })}
+                    {lead.confirmou_feirao && (
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold text-white"
+                        style={{
+                          backgroundColor:
+                            lead.confirmou_feirao === "sim"
+                              ? "#059669"
+                              : lead.confirmou_feirao === "talvez"
+                              ? "#d97706"
+                              : "#94a3b8",
+                        }}
+                      >
+                        {quizVal("confirmou_feirao", lead.confirmou_feirao)}
+                        {lead.horario_feirao ? ` · ${quizVal("horario_feirao", lead.horario_feirao)}` : ""}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ) : (
+              <section className="mt-5 rounded-2xl border border-[color:var(--torres-line)] bg-white p-4">
+                <div className="flex items-center gap-2">
+                  <Flame className="h-4 w-4" style={{ color: "var(--torres-indigo)" }} />
+                  <div className="serif text-sm font-semibold" style={{ color: "var(--torres-ink)" }}>
+                    Engajamento
+                  </div>
+                </div>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="serif text-3xl font-bold" style={{ color: "var(--torres-ink)" }}>
+                    {lead.lead_score}
+                  </span>
+                  <span className="text-sm" style={{ color: "var(--torres-muted)" }}>
+                    / 150 · {temp.text}
+                  </span>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[color:var(--torres-line)]">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${Math.min(100, (lead.lead_score / 150) * 100)}%`,
+                      backgroundColor: temp.dot,
+                    }}
+                  />
+                </div>
+              </section>
+            )}
+
+            {/* Respostas do Quiz */}
+            {lead.objetivo && (
+              <section
+                className="mt-4 rounded-2xl border border-[color:var(--torres-line)] bg-white p-4"
+                data-testid="lead-drawer-quiz"
+              >
+                <div className="serif text-sm font-semibold" style={{ color: "var(--torres-ink)" }}>
+                  Respostas do quiz
+                </div>
+                <div className="mt-3 grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+                  {[
+                    "objetivo",
+                    "prazo",
+                    "renda_familiar",
+                    "composicao_renda",
+                    "tipo_renda",
+                    "fgts",
+                    "fgts_valor",
+                    "entrada",
+                    "moradia",
+                    "aluguel_valor",
+                    "financiamento",
+                    "financiamento_valor",
+                    "restricao",
+                    "regiao",
+                    "preferencias",
+                  ].map((field) => {
+                    const label = quizVal(field, lead[field]);
+                    if (!label) return null;
+                    return (
+                      <div key={field} className="flex flex-col border-b border-dashed border-[color:var(--torres-line)] pb-1.5">
+                        <span className="text-[10px] uppercase tracking-wider" style={{ color: "var(--torres-muted)" }}>
+                          {QUIZ_LABELS[field].__label}
+                        </span>
+                        <span className="text-sm font-medium" style={{ color: "var(--torres-ink)" }}>
+                          {label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  {lead.cidade && (
+                    <div className="flex flex-col border-b border-dashed border-[color:var(--torres-line)] pb-1.5">
+                      <span className="text-[10px] uppercase tracking-wider" style={{ color: "var(--torres-muted)" }}>
+                        Cidade
+                      </span>
+                      <span className="text-sm font-medium" style={{ color: "var(--torres-ink)" }}>
+                        {lead.cidade}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {lead.utm && Object.keys(lead.utm).length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {Object.entries(lead.utm).map(([k, v]) => (
+                      <span key={k} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                        {k}: {String(v)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Journey */}
             <section className="mt-4 rounded-2xl border border-[color:var(--torres-line)] bg-white p-4" data-testid="lead-drawer-journey">

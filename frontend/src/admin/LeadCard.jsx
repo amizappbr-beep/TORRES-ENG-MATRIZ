@@ -18,6 +18,14 @@ import {
 /**
  * A single lead card, draggable + with status dropdown fallback (mobile).
  */
+const CLASSE_DOT = { A: "#059669", B: "#2563EB", C: "#D97706", D: "#94A3B8" };
+const EMP_SHORT = {
+  viva: "Viva",
+  alameda: "Alameda 500",
+  life: "Life 740",
+  aldeia: "Aldeia 350",
+};
+
 export default function LeadCard({ lead, onOpen, onStatusChange }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const temp = TEMP_LABEL[lead.temperatura] || TEMP_LABEL.frio;
@@ -132,6 +140,28 @@ export default function LeadCard({ lead, onOpen, onStatusChange }) {
 
       {/* badges row */}
       <div className="mt-2 flex flex-wrap items-center gap-1">
+        {lead.classe && (
+          <span
+            data-testid={`lead-card-${lead.id}-classe`}
+            className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-extrabold text-white"
+            style={{ backgroundColor: CLASSE_DOT[lead.classe] || "#94A3B8" }}
+            title={`Lead classe ${lead.classe}`}
+          >
+            {lead.classe}
+          </span>
+        )}
+        {lead.empreendimento_recomendado && (
+          <span className="inline-flex items-center gap-0.5 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700">
+            <HomeIcon className="h-2.5 w-2.5" />
+            {EMP_SHORT[lead.empreendimento_recomendado] || lead.empreendimento_recomendado}
+          </span>
+        )}
+        {lead.confirmou_feirao === "sim" && (
+          <span className="inline-flex items-center gap-0.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold text-violet-700">
+            <Calendar className="h-2.5 w-2.5" />
+            Feirão
+          </span>
+        )}
         {lead.lead_score >= 90 && (
           <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700" data-testid={`lead-card-${lead.id}-hot`}>
             <Flame className="h-2.5 w-2.5" />

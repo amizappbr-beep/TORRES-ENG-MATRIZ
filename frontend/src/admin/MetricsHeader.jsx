@@ -56,7 +56,7 @@ export default function MetricsHeader({ metrics, onLogout, onRefresh, hotLeadsCo
               Torres Engenharia · Painel
             </div>
             <h1 className="serif text-2xl font-semibold" style={{ color: "var(--torres-ink)" }}>
-              Leads do Alameda 500
+              CRM · II Feirão do Imóvel Torres
             </h1>
           </div>
           <div className="flex items-center gap-2">

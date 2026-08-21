@@ -50,7 +50,7 @@ export default function AdminLogin() {
                 Torres Engenharia
               </div>
               <div className="serif text-lg font-semibold" style={{ color: "var(--torres-ink)" }}>
-                Admin · Alameda 500
+                CRM · II Feirão do Imóvel Torres
               </div>
             </div>
           </div>
