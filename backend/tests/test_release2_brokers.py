@@ -7,8 +7,8 @@ import pytest
 import requests
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://torres-pre-quali.preview.emergentagent.com").rstrip("/")
-ADMIN_EMAIL = "admin@alameda500.com"
-ADMIN_PASSWORD = "vILabMQvT59VB-8NW7IclIu4"
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@feiraotorres.com.br")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 
 
 @pytest.fixture(scope="module")

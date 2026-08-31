@@ -178,11 +178,11 @@ export default function EmpreendimentoPage({ slug }) {
           />
         )}
         <div className="grid gap-3 sm:grid-cols-3">
-          {stat.galeria.map((g, i) => (
+          {stat.galeria.map((g) => (
             <img
-              key={i}
+              key={g}
               src={g}
-              alt={`${stat.nome} ${i + 1}`}
+              alt={stat.nome}
               className="h-48 w-full rounded-2xl object-cover shadow-sm"
             />
           ))}

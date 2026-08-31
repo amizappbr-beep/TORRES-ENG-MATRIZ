@@ -7,7 +7,8 @@ import LeadDetailDrawer from "./LeadDetailDrawer";
 import WarehouseView from "./WarehouseView";
 import BrokersView from "./BrokersView";
 import FeiraoView from "./FeiraoView";
-import { Loader2, LayoutDashboard, Bell, Users, BarChart3 } from "lucide-react";
+import AnalyticsView from "./AnalyticsView";
+import { Loader2, LayoutDashboard, Bell, Users, BarChart3, LineChart as LineChartIcon } from "lucide-react";
 
 const POLL_INTERVAL_MS = 30_000; // re-fetch leads every 30s
 
@@ -26,8 +27,9 @@ export default function AdminDashboard() {
     try {
       const { data } = await axiosAdmin.get("/admin/brokers");
       setBrokers(data);
-    } catch {
-      /* handled by interceptor */
+    } catch (e) {
+      // 401 é tratado globalmente pelo interceptor do AdminContext.
+      if (e?.response?.status !== 401) console.error("Erro ao carregar corretores:", e);
     }
   }, [axiosAdmin]);
 
@@ -48,8 +50,9 @@ export default function AdminDashboard() {
         ]);
         setLeads(leadsRes.data);
         setMetrics(metricsRes.data);
-      } catch {
-        // AdminContext interceptor handles 401 globally
+      } catch (e) {
+        // AdminContext interceptor trata 401 globalmente; loga o resto.
+        if (e?.response?.status !== 401) console.error("Erro ao carregar leads/métricas:", e);
       } finally {
         if (withLoading) setLoading(false);
       }
@@ -133,6 +136,14 @@ export default function AdminDashboard() {
             Feirão
           </TabButton>
           <TabButton
+            active={view === "analytics"}
+            onClick={() => setView("analytics")}
+            testid="admin-tab-analytics"
+            icon={<LineChartIcon className="h-3.5 w-3.5" />}
+          >
+            Analytics
+          </TabButton>
+          <TabButton
             active={view === "pipeline"}
             onClick={() => setView("pipeline")}
             testid="admin-tab-pipeline"
@@ -170,6 +181,8 @@ export default function AdminDashboard() {
 
       {view === "feirao" ? (
         <FeiraoView />
+      ) : view === "analytics" ? (
+        <AnalyticsView />
       ) : view === "pipeline" ? (
         <KanbanBoard
           columns={KANBAN_COLUMNS}

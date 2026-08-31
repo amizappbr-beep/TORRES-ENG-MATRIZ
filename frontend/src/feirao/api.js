@@ -1,4 +1,5 @@
 import axios from "axios";
+import { metaFromFunnel } from "./metaPixel";
 
 const RAW = process.env.REACT_APP_BACKEND_URL || "";
 const BASE = RAW.replace(/\/$/, "");
@@ -43,12 +44,19 @@ export function getUTM() {
   try {
     return JSON.parse(localStorage.getItem("feirao_utm") || "{}");
   } catch (_) {
+    // localStorage indisponível/corrompido — retorna UTM vazio sem quebrar.
     return {};
   }
 }
 
 // ---- Analytics event ----
 export async function track(event, extra = {}) {
+  // Espelha no Meta Pixel (no-op se o Pixel ID não estiver configurado).
+  try {
+    metaFromFunnel(event, {});
+  } catch (e) {
+    console.debug("metaFromFunnel falhou:", e?.message || e);
+  }
   try {
     const utm = getUTM();
     await api.post("/feirao/events", {
@@ -58,8 +66,9 @@ export async function track(event, extra = {}) {
       origem: utm.origem || null,
       ...extra,
     });
-  } catch (_) {
-    /* analytics must never break UX */
+  } catch (e) {
+    // Analytics nunca deve quebrar a UX; apenas registra no console.
+    console.debug("track() falhou:", e?.message || e);
   }
 }
 

@@ -40,9 +40,38 @@ async def load_config(db) -> Dict[str, Any]:
 
 
 async def seed_config(db) -> None:
+    """Semeia/atualiza a config do Feirão.
+
+    Idempotente: em cada startup sincroniza os campos de CONTEÚDO (evento e
+    dados de apresentação/comercial dos empreendimentos) a partir do
+    DEFAULT_CONFIG do código, PRESERVANDO os campos editáveis pela operação
+    (estoque de cada empreendimento, weights e faixas). Isso garante que um
+    novo deploy reflita os textos/preços atualizados mesmo que o documento já
+    exista no banco (ex.: produção semeada em versão antiga com "A DEFINIR").
+    """
     existing = await db.config.find_one({"_id": "feirao"})
     if not existing:
         await db.config.insert_one(dict(DEFAULT_CONFIG))
+        return
+
+    import copy
+
+    new_cfg = copy.deepcopy(DEFAULT_CONFIG)
+
+    # Preserva pesos/faixas se a operação já os tiver customizado.
+    if isinstance(existing.get("weights"), dict) and existing["weights"]:
+        new_cfg["weights"] = existing["weights"]
+    if isinstance(existing.get("faixas"), dict) and existing["faixas"]:
+        new_cfg["faixas"] = existing["faixas"]
+
+    # Preserva o estoque atual de cada empreendimento (ajustado pela operação).
+    existing_emps = existing.get("empreendimentos") or {}
+    for slug, emp in new_cfg["empreendimentos"].items():
+        ex_emp = existing_emps.get(slug) or {}
+        if ex_emp.get("estoque") is not None:
+            emp["estoque"] = ex_emp["estoque"]
+
+    await db.config.replace_one({"_id": "feirao"}, new_cfg)
 
 
 # ----------------------------- Public -----------------------------
@@ -146,6 +175,119 @@ async def admin_overview(request: Request, current=Depends(get_current_admin)):
         "confirmados_feirao": confirmados,
         "por_empreendimento": por_empreendimento,
     }
+
+
+@admin_feirao_router.get("/analytics")
+async def admin_analytics(
+    request: Request, days: int = 30, current=Depends(get_current_admin)
+):
+    """Métricas para o dashboard: KPIs, série temporal, funil, origem/UTM."""
+    db = get_db(request)
+    days = max(1, min(days, 365))
+    now = datetime.now(timezone.utc)
+    start = (now - timedelta(days=days - 1)).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    start_iso = start.isoformat()
+    today_iso = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+    d7 = (now - timedelta(days=7)).isoformat()
+
+    total = await db.leads.count_documents({})
+    hoje = await db.leads.count_documents({"created_at": {"$gte": today_iso}})
+    leads7 = await db.leads.count_documents({"created_at": {"$gte": d7}})
+    leads_range = await db.leads.count_documents({"created_at": {"$gte": start_iso}})
+
+    classes = {"A": 0, "B": 0, "C": 0, "D": 0}
+    async for row in db.leads.aggregate([{"$group": {"_id": "$classe", "count": {"$sum": 1}}}]):
+        if row["_id"] in classes:
+            classes[row["_id"]] = row["count"]
+
+    # Série temporal (leads/dia + visitantes/dia)
+    ts_leads: Dict[str, int] = {}
+    async for row in db.leads.aggregate([
+        {"$match": {"created_at": {"$gte": start_iso}}},
+        {"$group": {"_id": {"$substrCP": ["$created_at", 0, 10]}, "count": {"$sum": 1}}},
+    ]):
+        ts_leads[row["_id"]] = row["count"]
+
+    ts_vis: Dict[str, int] = {}
+    async for row in db.events.aggregate([
+        {"$match": {"event": "page_view", "at": {"$gte": start_iso}}},
+        {"$group": {"_id": {"$substrCP": ["$at", 0, 10]}, "s": {"$addToSet": "$session_id"}}},
+    ]):
+        ts_vis[row["_id"]] = len(row["s"])
+
+    series = []
+    for i in range(days):
+        d = (start + timedelta(days=i)).strftime("%Y-%m-%d")
+        series.append({"date": d, "leads": ts_leads.get(d, 0), "visitantes": ts_vis.get(d, 0)})
+
+    # Funil no período (sessões únicas)
+    def _q(ev):
+        return {"event": ev, "at": {"$gte": start_iso}}
+
+    visitantes = len(await db.events.distinct("session_id", _q("page_view")))
+    iniciaram = len(await db.events.distinct("session_id", _q("quiz_started")))
+    finalizaram = len(await db.events.distinct("session_id", _q("quiz_completed")))
+    whats = len(await db.events.distinct("session_id", _q("whatsapp_clicked")))
+    cadastraram = await db.leads.count_documents(
+        {"created_at": {"$gte": start_iso}, "name": {"$ne": None}}
+    )
+    agendaram = await db.leads.count_documents(
+        {"created_at": {"$gte": start_iso}, "confirmou_feirao": "sim"}
+    )
+
+    # Origem (source + campaign) no período
+    origem = []
+    async for row in db.leads.aggregate([
+        {"$match": {"created_at": {"$gte": start_iso}}},
+        {"$group": {
+            "_id": {
+                "source": {"$ifNull": ["$utm.source", "direto"]},
+                "campaign": {"$ifNull": ["$utm.campaign", None]},
+            },
+            "count": {"$sum": 1},
+        }},
+        {"$sort": {"count": -1}},
+    ]):
+        origem.append({
+            "source": row["_id"]["source"] or "direto",
+            "campaign": row["_id"].get("campaign"),
+            "leads": row["count"],
+        })
+
+    por_emp: Dict[str, int] = {}
+    async for row in db.leads.aggregate([
+        {"$match": {"created_at": {"$gte": start_iso}}},
+        {"$group": {"_id": "$empreendimento_recomendado", "count": {"$sum": 1}}},
+    ]):
+        if row["_id"]:
+            por_emp[row["_id"]] = row["count"]
+
+    return {
+        "days": days,
+        "kpis": {
+            "total": total,
+            "hoje": hoje,
+            "leads_7d": leads7,
+            "leads_range": leads_range,
+            "agendaram": agendaram,
+            "whatsapp": whats,
+        },
+        "classes": classes,
+        "series": series,
+        "funnel": {
+            "visitantes": visitantes,
+            "iniciaram_quiz": iniciaram,
+            "finalizaram_quiz": finalizaram,
+            "cadastraram": cadastraram,
+            "agendaram": agendaram,
+            "clicaram_whatsapp": whats,
+        },
+        "origem": origem,
+        "por_empreendimento": por_emp,
+    }
+
 
 
 @admin_feirao_router.get("/funnel")

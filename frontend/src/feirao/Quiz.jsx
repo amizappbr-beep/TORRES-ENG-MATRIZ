@@ -66,7 +66,8 @@ export default function Quiz() {
     api
       .get("/feirao/config")
       .then((r) => setConfig(r.data))
-      .catch(() => {});
+      .catch((e) => console.error("Falha ao carregar config do Feirão:", e));
+    // Executa só na montagem (dispara quiz_started uma vez).
   }, []);
 
   const base = QUIZ[baseIndex];
@@ -185,8 +186,8 @@ export default function Quiz() {
       } else {
         setAgendSaved(true);
       }
-    } catch (_) {
-      /* keep UX */
+    } catch (e) {
+      console.error("Falha ao salvar agendamento do Feirão:", e);
     }
   }
 
@@ -202,6 +203,7 @@ export default function Quiz() {
       best: merge(lead?.empreendimento_recomendado),
       alts: (lead?.empreendimento_alternativas || []).map(merge).filter(Boolean),
     };
+    // EMPREENDIMENTOS é constante de módulo; deps relevantes são config e lead.
   }, [config, lead]);
 
   const phone = config?.event?.whatsapp || "5527998336937";
