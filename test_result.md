@@ -205,6 +205,17 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ VERIFIED: GET /api/admin/feirao/analytics (Bearer) fully tested with days=7/30/90 - all return 200. Response structure validated: days (int), kpis {total, hoje, leads_7d, leads_range, agendaram, whatsapp} (all ints), classes {A:19, B:10, C:0, D:10}, series (list length matches days param, each item has date YYYY-MM-DD, leads int, visitantes int), funnel {visitantes:44, iniciaram_quiz, finalizaram_quiz, cadastraram:38, agendaram, clicaram_whatsapp} (all ints), origem (list with source/campaign/leads, includes 'instagram', 'whatsapp', 'meta_ads'), por_empreendimento {alameda:20, viva:19}. Edge cases verified: days=500 correctly clamped to 365 (series length 365), days=0 correctly clamped to 1 (series length 1). Auth requirement verified: returns 401 without Bearer token. Regression passed: GET /api/admin/feirao/overview and GET /api/admin/feirao/funnel still return 200."
+  - task: "Meta token expiration handling (GET /api/admin/feirao/meta-cpl)"
+    implemented: true
+    working: true
+    file: "routers/feirao.py, meta_insights.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ VERIFIED: Graceful handling of EXPIRED Meta access token (OAuthException code 190). TEST 1: GET /api/admin/feirao/meta-cpl?days=30 returns HTTP 200 (NOT 500) with structured error response: configured=true, error_type='token_expired', mensagem='O token de acesso da Meta expirou. Gere um novo System User Token (permissão ads_read) e envie para reativar o CPL.', error field contains full Graph API error for debugging. TEST 2: Auth required - returns 401 without Bearer token. TEST 3: Regression - GET /api/admin/feirao/analytics?days=30 returns 200 with all required keys (kpis, series, funnel, origem, por_empreendimento). TEST 4: Regression - GET /api/admin/feirao/overview and /funnel both return 200. All 4 tests PASSED. The endpoint correctly classifies the expired token error and returns a user-friendly message WITHOUT a 500 error."
 
 frontend:
   - task: "Landing + Quiz + páginas de empreendimento + CRM Feirão"
@@ -230,7 +241,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Admin analytics endpoint (GET /api/admin/feirao/analytics)"
+    - "Meta token expiration handling (GET /api/admin/feirao/meta-cpl)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -250,4 +261,6 @@ agent_communication:
       message: "✅ ADMIN CRM LOGIN VERIFICATION COMPLETE - ALL TESTS PASSED. Comprehensive testing of admin login flow completed with 6 test scenarios: TEST 1 (NEGATIVE CHECK): Wrong password 'wrongpass123' correctly returned 401 status with error message 'E-mail ou senha inválidos.' displayed on UI, user remained on login page (access denied). TEST 2 (POSITIVE CHECK): Correct credentials admin@feiraotorres.com.br / Feirao@Torres2026 returned 200 status with valid JWT access_token, dashboard loaded successfully, Feirão tab active by default with data-testid='admin-feirao-view' present. TEST 3 (DASHBOARD DATA): All sections present and rendering correctly - 'Visão geral' with Total de leads=0, Leads hoje=0, Inscritos no Feirão=0, Confirmados=0, Leads A+B=0, Leads C+D=0; 'Classificação dos leads' with all cards (A/B/C/D) showing 0; 'Funil de conversão' with all metrics at 0 (Visitantes, Iniciaram quiz, Finalizaram quiz, Cadastraram, Agendaram, Clicaram no WhatsApp); 'Distribuição por empreendimento' with all 4 empreendimentos at 0; 'Origem dos leads' showing 'Sem dados de origem ainda.' TEST 4 (OTHER TABS): All tabs loaded without crashing - Pipeline tab, Warehouse tab, Brokers tab all functional. TEST 5 (NETWORK ANALYSIS): Wrong password POST /api/admin/login returned 401 with body {'detail': 'E-mail ou senha inválidos.'}; Correct credentials POST /api/admin/login returned 200 with valid JWT token and expires_in=86400. TEST 6 (CONSOLE): No critical console errors detected. Screenshot captured showing dashboard with all metrics at 0 as expected. NO ISSUES FOUND. Admin CRM login is working perfectly."
     - agent: "testing"
       message: "✅ ANALYTICS ENDPOINT TESTING COMPLETE - ALL TESTS PASSED (9/9). NEW endpoint GET /api/admin/feirao/analytics fully verified: (1) days=7 returns 200 with correct structure, series length=7. (2) days=30 returns 200 with correct structure, series length=30. (3) days=90 returns 200 with correct structure, series length=90, sample values: kpis.total=39, kpis.hoje=34, kpis.leads_7d=34, kpis.leads_range=39, kpis.agendaram=2, kpis.whatsapp=1, classes={A:19, B:10, C:0, D:10}, funnel.visitantes=44, funnel.cadastraram=38, origem includes 'instagram', 'whatsapp', 'meta_ads' with campaigns, por_empreendimento={alameda:20, viva:19}. (4) days=500 correctly clamped to 365, series length=365. (5) days=0 correctly clamped to 1, series length=1. (6) Auth requirement verified: returns 401 without Bearer token. (7) Regression: GET /api/admin/feirao/overview returns 200. (8) Regression: GET /api/admin/feirao/funnel returns 200. Response structure fully validated: days (int), kpis with all required fields (total, hoje, leads_7d, leads_range, agendaram, whatsapp) all integers, classes {A, B, C, D} all integers, series list with correct length matching days param (each item has date YYYY-MM-DD string, leads int, visitantes int), funnel with all required keys (visitantes, iniciaram_quiz, finalizaram_quiz, cadastraram, agendaram, clicaram_whatsapp) all integers, origem list with items {source, campaign nullable, leads int}, por_empreendimento dict. NO ISSUES FOUND. Analytics endpoint is production-ready."
+    - agent: "testing"
+      message: "✅ META TOKEN EXPIRATION HANDLING VERIFIED - ALL TESTS PASSED (4/4). Tested graceful handling of EXPIRED Meta access token (OAuthException code 190). TEST 1: GET /api/admin/feirao/meta-cpl?days=30 returns HTTP 200 (NOT 500) with structured error response: configured=true, error_type='token_expired', mensagem='O token de acesso da Meta expirou. Gere um novo System User Token (permissão ads_read) e envie para reativar o CPL.', error field contains full Graph API error message for debugging. TEST 2: Auth required - endpoint returns 401 without Bearer token. TEST 3: Regression - GET /api/admin/feirao/analytics?days=30 returns 200 with all required keys (kpis, series, funnel, origem, por_empreendimento). TEST 4: Regression - GET /api/admin/feirao/overview and /funnel both return 200. The endpoint correctly classifies the expired token error and returns a user-friendly message WITHOUT a 500 error. NO ISSUES FOUND. Meta token expiration handling is production-ready."
 

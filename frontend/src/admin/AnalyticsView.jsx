@@ -262,7 +262,9 @@ export default function AnalyticsView() {
           ) : cpl && cpl.error ? (
             <div className="mt-4 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-xs text-red-700">
               <DollarSign className="mt-0.5 h-4 w-4 flex-shrink-0" />
-              <span><b>CPL indisponível:</b> {cpl.error}</span>
+              <span>
+                <b>CPL indisponível:</b> {cpl.mensagem || cpl.error}
+              </span>
             </div>
           ) : (
             <div className="mt-4 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">

@@ -192,7 +192,31 @@ async def admin_meta_cpl(
     try:
         return await cpl_summary(db, days)
     except Exception as e:  # erro de token/permissão etc.
-        return {"configured": True, "error": str(e)[:300]}
+        msg = str(e)[:500]
+        low = msg.lower()
+        expired = ("code\":190" in msg) or ("expired" in low) or ("190" in msg and "oauth" in low)
+        permission = ("code\":200" in msg) or ("code\":10" in msg) or ("permission" in low)
+        if expired:
+            error_type = "token_expired"
+            mensagem = (
+                "O token de acesso da Meta expirou. Gere um novo System User "
+                "Token (permissão ads_read) e envie para reativar o CPL."
+            )
+        elif permission:
+            error_type = "permission"
+            mensagem = (
+                "Sem permissão para ler os anúncios. Verifique se o usuário do "
+                "sistema tem a conta de anúncios atribuída com a tarefa ANALYZE."
+            )
+        else:
+            error_type = "api_error"
+            mensagem = "Não foi possível consultar a Meta agora. Tente novamente em instantes."
+        return {
+            "configured": True,
+            "error": msg,
+            "error_type": error_type,
+            "mensagem": mensagem,
+        }
 
 
 @admin_feirao_router.get("/analytics")
