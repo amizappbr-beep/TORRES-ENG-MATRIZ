@@ -223,7 +223,10 @@ export default function AnalyticsView() {
           {cpl && cpl.configured && !cpl.error ? (
             <div className="mt-4 rounded-xl border border-[color:var(--torres-line)] bg-white p-3">
               <div className="flex items-center gap-2 text-sm font-bold text-[color:var(--torres-ink)]">
-                <DollarSign className="h-4 w-4 text-green-600" /> Custo por Lead (Meta)
+                <DollarSign className="h-4 w-4 text-green-600" /> Custo por Lead (Feirão)
+              </div>
+              <div className="mt-0.5 text-[10px] text-[color:var(--torres-muted)]">
+                Somente campanhas do Feirão · CPL = investido ÷ leads reais do CRM
               </div>
               <div className="mt-3 grid grid-cols-3 gap-2 text-center">
                 <div>

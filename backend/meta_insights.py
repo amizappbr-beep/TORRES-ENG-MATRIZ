@@ -34,9 +34,17 @@ def _appsecret_proof(token: str, secret: str) -> str:
     return hmac.new(secret.encode(), token.encode(), hashlib.sha256).hexdigest()
 
 
+def _allowed_campaign_ids() -> List[str]:
+    raw = _env("META_CAMPAIGN_IDS")
+    return [c.strip() for c in raw.split(",") if c.strip()]
+
+
 async def fetch_campaign_insights(days: int = 30) -> List[Dict[str, Any]]:
     """Retorna [{campaign_id, campaign_name, spend(float), meta_leads(int),
-    cpl_meta(float|None)}] no período (inclusivo)."""
+    cpl_meta(float|None)}] no período (inclusivo).
+
+    Se META_CAMPAIGN_IDS estiver definido, considera SOMENTE essas campanhas.
+    """
     token = _env("META_SYSTEM_USER_TOKEN")
     account = _env("META_AD_ACCOUNT_ID")
     secret = _env("META_APP_SECRET")
@@ -44,6 +52,7 @@ async def fetch_campaign_insights(days: int = 30) -> List[Dict[str, Any]]:
     if not (token and account and secret):
         return []
 
+    allowed = _allowed_campaign_ids()
     end = date.today()
     start = end - timedelta(days=max(1, days) - 1)
     url = f"https://graph.facebook.com/{version}/act_{account}/insights"
@@ -55,6 +64,12 @@ async def fetch_campaign_insights(days: int = 30) -> List[Dict[str, Any]]:
         "access_token": token,
         "appsecret_proof": _appsecret_proof(token, secret),
     }
+    if allowed:
+        import json as _json
+
+        params["filtering"] = _json.dumps(
+            [{"field": "campaign.id", "operator": "IN", "value": allowed}]
+        )
 
     rows: List[Dict[str, Any]] = []
     async with httpx.AsyncClient(timeout=30) as client:
@@ -66,13 +81,16 @@ async def fetch_campaign_insights(days: int = 30) -> List[Dict[str, Any]]:
                 raise RuntimeError(f"Meta Insights error {r.status_code}: {r.text[:300]}")
             body = r.json()
             for x in body.get("data", []):
+                cid = x.get("campaign_id")
+                if allowed and cid not in allowed:
+                    continue  # defensivo: garante só campanhas permitidas
                 spend = float(x.get("spend", 0) or 0)
                 leads = 0
                 for a in x.get("actions", []) or []:
                     if a.get("action_type") in ("lead", "offsite_conversion.fb_pixel_lead"):
                         leads += int(float(a.get("value", 0) or 0))
                 rows.append({
-                    "campaign_id": x.get("campaign_id"),
+                    "campaign_id": cid,
                     "campaign_name": x.get("campaign_name"),
                     "spend": round(spend, 2),
                     "meta_leads": leads,
