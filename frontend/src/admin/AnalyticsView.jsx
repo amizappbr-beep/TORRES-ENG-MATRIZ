@@ -55,6 +55,7 @@ export default function AnalyticsView() {
   const { axiosAdmin } = useAdmin();
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
+  const [cpl, setCpl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [updatedAt, setUpdatedAt] = useState(null);
@@ -63,8 +64,12 @@ export default function AnalyticsView() {
     async (silent = false) => {
       if (silent) setRefreshing(true);
       try {
-        const r = await axiosAdmin.get(`/admin/feirao/analytics?days=${days}`);
-        setData(r.data);
+        const [a, c] = await Promise.all([
+          axiosAdmin.get(`/admin/feirao/analytics?days=${days}`),
+          axiosAdmin.get(`/admin/feirao/meta-cpl?days=${Math.min(days, 92)}`),
+        ]);
+        setData(a.data);
+        setCpl(c.data);
         setUpdatedAt(new Date());
       } catch (e) {
         if (e?.response?.status !== 401) console.error("Erro no analytics:", e);
@@ -215,13 +220,56 @@ export default function AnalyticsView() {
               </tbody>
             </table>
           </div>
-          <div className="mt-4 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">
-            <DollarSign className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <span>
-              <b>Custo por Lead (CPL):</b> conecte a Meta Marketing API para puxar o
-              investimento das campanhas e calcular o CPL automaticamente. (aguardando credenciais)
-            </span>
-          </div>
+          {cpl && cpl.configured && !cpl.error ? (
+            <div className="mt-4 rounded-xl border border-[color:var(--torres-line)] bg-white p-3">
+              <div className="flex items-center gap-2 text-sm font-bold text-[color:var(--torres-ink)]">
+                <DollarSign className="h-4 w-4 text-green-600" /> Custo por Lead (Meta)
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                <div>
+                  <div className="text-[10px] uppercase text-[color:var(--torres-muted)]">Investido</div>
+                  <div className="text-lg font-extrabold text-[color:var(--torres-ink)]">
+                    R$ {Number(cpl.total_spend || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase text-[color:var(--torres-muted)]">Leads (CRM)</div>
+                  <div className="text-lg font-extrabold text-[color:var(--torres-ink)]">{cpl.crm_leads ?? 0}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase text-[color:var(--torres-muted)]">CPL</div>
+                  <div className="text-lg font-extrabold text-green-600">
+                    {cpl.cpl_crm == null ? "—" : `R$ ${Number(cpl.cpl_crm).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                  </div>
+                </div>
+              </div>
+              {(cpl.campanhas || []).length > 0 && (
+                <div className="mt-3 space-y-1.5">
+                  {cpl.campanhas.slice(0, 5).map((c) => (
+                    <div key={c.campaign_id} className="flex items-center justify-between text-xs">
+                      <span className="truncate pr-2 text-[color:var(--torres-ink)]">{c.campaign_name}</span>
+                      <span className="whitespace-nowrap text-[color:var(--torres-muted)]">
+                        R$ {Number(c.spend).toLocaleString("pt-BR")} · CPL {c.cpl_meta == null ? "—" : `R$ ${c.cpl_meta}`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : cpl && cpl.error ? (
+            <div className="mt-4 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-xs text-red-700">
+              <DollarSign className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <span><b>CPL indisponível:</b> {cpl.error}</span>
+            </div>
+          ) : (
+            <div className="mt-4 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">
+              <DollarSign className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <span>
+                <b>Custo por Lead (CPL):</b> conecte a Meta Marketing API (falta o
+                token de acesso) para calcular o CPL automaticamente.
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

@@ -177,6 +177,24 @@ async def admin_overview(request: Request, current=Depends(get_current_admin)):
     }
 
 
+@admin_feirao_router.get("/meta-cpl")
+async def admin_meta_cpl(
+    request: Request, days: int = 30, current=Depends(get_current_admin)
+):
+    """Custo por Lead via Meta Marketing API. Retorna {configured:false}
+    quando as credenciais ainda não foram informadas."""
+    from meta_insights import cpl_summary, is_configured
+
+    db = get_db(request)
+    days = max(1, min(days, 92))
+    if not is_configured():
+        return {"configured": False}
+    try:
+        return await cpl_summary(db, days)
+    except Exception as e:  # erro de token/permissão etc.
+        return {"configured": True, "error": str(e)[:300]}
+
+
 @admin_feirao_router.get("/analytics")
 async def admin_analytics(
     request: Request, days: int = 30, current=Depends(get_current_admin)
