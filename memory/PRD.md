@@ -33,6 +33,12 @@ WhatsApp 5527998336937 (wa.me + código do lead). Analytics: eventos em `db.even
 ### Admin
 admin@feiraotorres.com.br / Feirao@Torres2026 (seed via .env).
 
+### Analytics + Meta (2026)
+- Aba "Analytics" no CRM (src/admin/AnalyticsView.jsx): KPIs, série temporal (recharts) leads/visitantes por dia, seletor 7/30/90d, funil por período, origem por UTM, distribuição por empreendimento/classe, auto-refresh 45s. Endpoint GET /api/admin/feirao/analytics?days=.
+- Meta Pixel (src/feirao/metaPixel.js): REACT_APP_META_PIXEL_ID=436043685771231; dispara PageView + ViewContent/Lead/Schedule/Contact via track(). ATIVO e confirmado.
+- CPL via Meta Marketing API (backend/meta_insights.py + GET /api/admin/feirao/meta-cpl): usa META_APP_ID/META_APP_SECRET/META_SYSTEM_USER_TOKEN/META_AD_ACCOUNT_ID (Ad account 290757627252218). Retorna spend por campanha + CPL (spend/leads_CRM). Validado com dados reais. Token System User ~60 dias — rotacionar antes de expirar.
+- PRODUÇÃO: definir REACT_APP_META_PIXEL_ID (frontend) e META_* (backend) no ambiente de produção + redeploy.
+
 ### Testes (2026)
 Backend 13/13 PASS. Frontend 6/6 PASS (desktop + mobile).
 
