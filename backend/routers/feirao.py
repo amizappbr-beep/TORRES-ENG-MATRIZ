@@ -177,6 +177,41 @@ async def admin_overview(request: Request, current=Depends(get_current_admin)):
     }
 
 
+@admin_feirao_router.get("/agenda")
+async def admin_agenda(request: Request, current=Depends(get_current_admin)):
+    """Leads inscritos no Feirão (confirmou sim/talvez), agrupados por faixa
+    de horário para organizar o atendimento no dia do evento."""
+    db = get_db(request)
+    cfg = await load_config(db)
+    slots: Dict[str, list] = {"09_10": [], "10_11": [], "11_12": [], "sem_horario": []}
+    proj = {
+        "_id": 0, "id": 1, "name": 1, "phone": 1, "email": 1, "cidade": 1,
+        "confirmou_feirao": 1, "horario_feirao": 1, "classe": 1,
+        "empreendimento_recomendado": 1, "created_at": 1,
+    }
+    cursor = db.leads.find(
+        {"confirmou_feirao": {"$in": ["sim", "talvez"]}}, proj
+    ).sort("created_at", 1)
+    total_sim = 0
+    total_talvez = 0
+    async for l in cursor:
+        if l.get("confirmou_feirao") == "sim":
+            total_sim += 1
+        else:
+            total_talvez += 1
+        h = l.get("horario_feirao") or "sem_horario"
+        (slots.get(h) if h in slots else slots["sem_horario"]).append(l)
+    return {
+        "data_label": cfg.get("event", {}).get("data_label"),
+        "horario_label": cfg.get("event", {}).get("horario_label"),
+        "local_nome": cfg.get("event", {}).get("local_nome"),
+        "total_confirmados": total_sim,
+        "total_talvez": total_talvez,
+        "counts": {k: len(v) for k, v in slots.items()},
+        "slots": slots,
+    }
+
+
 @admin_feirao_router.get("/meta-cpl")
 async def admin_meta_cpl(
     request: Request, days: int = 30, current=Depends(get_current_admin)

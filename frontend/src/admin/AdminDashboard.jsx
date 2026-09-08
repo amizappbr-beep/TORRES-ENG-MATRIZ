@@ -8,7 +8,8 @@ import WarehouseView from "./WarehouseView";
 import BrokersView from "./BrokersView";
 import FeiraoView from "./FeiraoView";
 import AnalyticsView from "./AnalyticsView";
-import { Loader2, LayoutDashboard, Bell, Users, BarChart3, LineChart as LineChartIcon } from "lucide-react";
+import AgendaView from "./AgendaView";
+import { Loader2, LayoutDashboard, Bell, Users, BarChart3, LineChart as LineChartIcon, CalendarClock } from "lucide-react";
 
 const POLL_INTERVAL_MS = 30_000; // re-fetch leads every 30s
 
@@ -155,6 +156,14 @@ export default function AdminDashboard() {
             </span>
           </TabButton>
           <TabButton
+            active={view === "agenda"}
+            onClick={() => setView("agenda")}
+            testid="admin-tab-agenda"
+            icon={<CalendarClock className="h-3.5 w-3.5" />}
+          >
+            Agenda Confirmação
+          </TabButton>
+          <TabButton
             active={view === "warehouse"}
             onClick={() => setView("warehouse")}
             testid="admin-tab-warehouse"
@@ -183,6 +192,8 @@ export default function AdminDashboard() {
         <FeiraoView />
       ) : view === "analytics" ? (
         <AnalyticsView />
+      ) : view === "agenda" ? (
+        <AgendaView />
       ) : view === "pipeline" ? (
         <KanbanBoard
           columns={KANBAN_COLUMNS}
