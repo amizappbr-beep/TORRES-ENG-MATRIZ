@@ -36,13 +36,20 @@ function Kpi({ label, value, sub }) {
   );
 }
 
-function Bar({ label, value, max, color = "#0B2A4A" }) {
+function Bar({ label, value, max, color = "#0B2A4A", hint }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div>
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium text-[color:var(--torres-ink)]">{label}</span>
-        <span className="font-bold tabular-nums text-[color:var(--torres-ink)]">{value}</span>
+        <span className="flex items-center gap-1.5">
+          <span className="font-bold tabular-nums text-[color:var(--torres-ink)]">{value}</span>
+          {hint != null && (
+            <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-[color:var(--torres-muted)]">
+              {hint}
+            </span>
+          )}
+        </span>
       </div>
       <div className="mt-1 h-2.5 w-full rounded-full bg-slate-100">
         <div className="h-full rounded-full" style={{ width: `${Math.max(pct, 2)}%`, background: color }} />
@@ -180,13 +187,24 @@ export default function AnalyticsView() {
         {/* Funil */}
         <div className="rounded-2xl border border-[color:var(--torres-line)] bg-white p-5 shadow-sm">
           <h3 className="text-sm font-bold text-[color:var(--torres-ink)]">Funil de conversão</h3>
+          <p className="mt-0.5 text-[10px] text-[color:var(--torres-muted)]">
+            % calculado sobre o total de visitantes
+          </p>
           <div className="mt-4 space-y-3">
-            <Bar label="Visitantes" value={funil.visitantes || 0} max={funnelMax} />
-            <Bar label="Iniciaram quiz" value={funil.iniciaram_quiz || 0} max={funnelMax} />
-            <Bar label="Finalizaram quiz" value={funil.finalizaram_quiz || 0} max={funnelMax} />
-            <Bar label="Cadastraram" value={funil.cadastraram || 0} max={funnelMax} />
-            <Bar label="Agendaram" value={funil.agendaram || 0} max={funnelMax} />
-            <Bar label="Clicaram no WhatsApp" value={funil.clicaram_whatsapp || 0} max={funnelMax} />
+            {(() => {
+              const base = funil.visitantes || 0;
+              const pf = (v) => (base > 0 ? `${Math.round((v / base) * 100)}%` : "—");
+              return (
+                <>
+                  <Bar label="Visitantes" value={funil.visitantes || 0} max={funnelMax} hint={pf(funil.visitantes || 0)} />
+                  <Bar label="Iniciaram quiz" value={funil.iniciaram_quiz || 0} max={funnelMax} hint={pf(funil.iniciaram_quiz || 0)} />
+                  <Bar label="Finalizaram quiz" value={funil.finalizaram_quiz || 0} max={funnelMax} hint={pf(funil.finalizaram_quiz || 0)} />
+                  <Bar label="Cadastraram" value={funil.cadastraram || 0} max={funnelMax} hint={pf(funil.cadastraram || 0)} />
+                  <Bar label="Agendaram" value={funil.agendaram || 0} max={funnelMax} hint={pf(funil.agendaram || 0)} />
+                  <Bar label="Clicaram no WhatsApp" value={funil.clicaram_whatsapp || 0} max={funnelMax} hint={pf(funil.clicaram_whatsapp || 0)} />
+                </>
+              );
+            })()}
           </div>
         </div>
 
@@ -221,41 +239,53 @@ export default function AnalyticsView() {
             </table>
           </div>
           {cpl && cpl.configured && !cpl.error ? (
-            <div className="mt-4 rounded-xl border border-[color:var(--torres-line)] bg-white p-3">
+            <div className="mt-4 rounded-2xl border border-[color:var(--torres-line)] bg-white p-4">
               <div className="flex items-center gap-2 text-sm font-bold text-[color:var(--torres-ink)]">
                 <DollarSign className="h-4 w-4 text-green-600" /> Custo por Lead (Feirão)
               </div>
               <div className="mt-0.5 text-[10px] text-[color:var(--torres-muted)]">
                 Somente campanhas do Feirão · CPL = investido ÷ leads reais do CRM
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                <div>
-                  <div className="text-[10px] uppercase text-[color:var(--torres-muted)]">Investido</div>
-                  <div className="text-lg font-extrabold text-[color:var(--torres-ink)]">
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="rounded-xl border border-[color:var(--torres-line)] bg-slate-50 p-3">
+                  <div className="text-[10px] uppercase tracking-wide text-[color:var(--torres-muted)]">Investido</div>
+                  <div className="mt-1 text-base font-extrabold leading-tight text-[color:var(--torres-ink)]">
                     R$ {Number(cpl.total_spend || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </div>
                 </div>
-                <div>
-                  <div className="text-[10px] uppercase text-[color:var(--torres-muted)]">Leads (CRM)</div>
-                  <div className="text-lg font-extrabold text-[color:var(--torres-ink)]">{cpl.crm_leads ?? 0}</div>
+                <div className="rounded-xl border border-[color:var(--torres-line)] bg-slate-50 p-3">
+                  <div className="text-[10px] uppercase tracking-wide text-[color:var(--torres-muted)]">Leads (CRM)</div>
+                  <div className="mt-1 text-base font-extrabold leading-tight text-[color:var(--torres-ink)]">{cpl.crm_leads ?? 0}</div>
                 </div>
-                <div>
-                  <div className="text-[10px] uppercase text-[color:var(--torres-muted)]">CPL</div>
-                  <div className="text-lg font-extrabold text-green-600">
+                <div className="rounded-xl border-2 border-green-500 bg-green-50 p-3">
+                  <div className="text-[10px] uppercase tracking-wide text-green-700">CPL</div>
+                  <div className="mt-1 text-base font-extrabold leading-tight text-green-700">
                     {cpl.cpl_crm == null ? "—" : `R$ ${Number(cpl.cpl_crm).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                   </div>
                 </div>
               </div>
               {(cpl.campanhas || []).length > 0 && (
-                <div className="mt-3 space-y-1.5">
-                  {cpl.campanhas.slice(0, 5).map((c) => (
-                    <div key={c.campaign_id} className="flex items-center justify-between text-xs">
-                      <span className="truncate pr-2 text-[color:var(--torres-ink)]">{c.campaign_name}</span>
-                      <span className="whitespace-nowrap text-[color:var(--torres-muted)]">
-                        R$ {Number(c.spend).toLocaleString("pt-BR")} · CPL {c.cpl_meta == null ? "—" : `R$ ${c.cpl_meta}`}
-                      </span>
-                    </div>
-                  ))}
+                <div className="mt-4">
+                  <div className="mb-2 grid grid-cols-12 border-b border-[color:var(--torres-line)] pb-1 text-[10px] font-semibold uppercase tracking-wide text-[color:var(--torres-muted)]">
+                    <span className="col-span-7">Campanha</span>
+                    <span className="col-span-3 text-right">Investido</span>
+                    <span className="col-span-2 text-right">CPL Meta</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {cpl.campanhas.slice(0, 6).map((c) => (
+                      <div key={c.campaign_id} className="grid grid-cols-12 items-center text-xs">
+                        <span className="col-span-7 truncate pr-2 font-medium text-[color:var(--torres-ink)]" title={c.campaign_name}>
+                          {c.campaign_name}
+                        </span>
+                        <span className="col-span-3 text-right tabular-nums text-[color:var(--torres-ink)]">
+                          R$ {Number(c.spend).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </span>
+                        <span className="col-span-2 text-right tabular-nums text-[color:var(--torres-muted)]">
+                          {c.cpl_meta == null ? "—" : `R$ ${Number(c.cpl_meta).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -292,19 +322,26 @@ export default function AnalyticsView() {
         <div className="rounded-2xl border border-[color:var(--torres-line)] bg-white p-5 shadow-sm">
           <h3 className="text-sm font-bold text-[color:var(--torres-ink)]">Por classe de qualificação</h3>
           <div className="mt-4 grid grid-cols-4 gap-3">
-            {["A", "B", "C", "D"].map((c) => (
-              <div key={c} className="rounded-xl border border-[color:var(--torres-line)] p-3 text-center">
-                <div
-                  className="mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm font-extrabold text-white"
-                  style={{ background: CLASSE_COLORS[c] }}
-                >
-                  {c}
+            {["A", "B", "C", "D"].map((c) => {
+              const totalCls = ["A", "B", "C", "D"].reduce((s, k) => s + (classes[k] || 0), 0);
+              const pct = totalCls > 0 ? Math.round(((classes[c] || 0) / totalCls) * 100) : 0;
+              return (
+                <div key={c} className="rounded-xl border border-[color:var(--torres-line)] p-3 text-center">
+                  <div
+                    className="mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm font-extrabold text-white"
+                    style={{ background: CLASSE_COLORS[c] }}
+                  >
+                    {c}
+                  </div>
+                  <div className="mt-2 text-xl font-extrabold text-[color:var(--torres-ink)]">
+                    {classes[c] || 0}
+                  </div>
+                  <div className="text-[11px] font-bold" style={{ color: CLASSE_COLORS[c] }}>
+                    {pct}%
+                  </div>
                 </div>
-                <div className="mt-2 text-xl font-extrabold text-[color:var(--torres-ink)]">
-                  {classes[c] || 0}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
